@@ -4,3 +4,4 @@
 .ogsc_sandbox/
 .DS_Store
 Thumbs.db
+/dist

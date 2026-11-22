@@ -1,0 +1,159 @@
+name: Release Windows x64
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0). Defaults to v<workspace.package.version> from Cargo.toml.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  release-windows:
+    name: Build, Test & Package Windows x64
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve release metadata
+        id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $tag = $env:GITHUB_REF_NAME
+          } elseif (-not [string]::IsNullOrWhiteSpace($env:INPUT_TAG)) {
+            $tag = $env:INPUT_TAG.Trim()
+          } else {
+            $cargoToml = Get-Content -Raw 'Cargo.toml'
+            if ($cargoToml -match '(?m)^version\s*=\s*"([^"]+)"') {
+              $tag = "v$($Matches[1])"
+            } else {
+              throw 'Could not determine version from Cargo.toml'
+            }
+          }
+          $prerelease = ($tag -match '-').ToString().ToLowerInvariant()
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "prerelease=$prerelease" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Resolved release tag: $tag (prerelease=$prerelease)"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo registry & build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format, lint & test workspace
+        run: |
+          cargo fmt --all -- --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo clippy --workspace --all-targets -- -D warnings
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --workspace
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build optimized release binaries
+        run: |
+          cargo build --release --workspace
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package Windows x64 archive & SHA-256 checksums
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $bundleName = "ReviveBox-$tag-windows-x64"
+          $distRoot = Join-Path $PWD 'dist'
+          $stageDir = Join-Path $distRoot $bundleName
+          $zipPath = Join-Path $distRoot "$bundleName.zip"
+
+          if (Test-Path $distRoot) {
+            Remove-Item -Recurse -Force $distRoot
+          }
+          New-Item -ItemType Directory -Force -Path (Join-Path $stageDir 'recipes') | Out-Null
+
+          Copy-Item 'target\release\ogsc-launcher.exe' (Join-Path $stageDir 'ReviveBox.exe') -Force
+          Copy-Item 'target\release\ogsc.exe' (Join-Path $stageDir 'ogsc.exe') -Force
+          Copy-Item 'recipes\games' (Join-Path $stageDir 'recipes\games') -Recurse -Force
+          Copy-Item 'README.md' (Join-Path $stageDir 'README.md') -Force
+
+          & (Join-Path $stageDir 'ogsc.exe') --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          & (Join-Path $stageDir 'ReviveBox.exe') --version | Out-Null
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          & (Join-Path $stageDir 'ogsc.exe') validate (Join-Path $stageDir 'recipes\games')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          Compress-Archive -Path "$stageDir\*" -DestinationPath $zipPath -CompressionLevel Optimal -Force
+
+          $targets = @(
+            @{ Name = "$bundleName.zip"; Path = $zipPath },
+            @{ Name = 'ReviveBox.exe'; Path = (Join-Path $stageDir 'ReviveBox.exe') },
+            @{ Name = 'ogsc.exe'; Path = (Join-Path $stageDir 'ogsc.exe') }
+          )
+
+          $checksumLines = foreach ($item in $targets) {
+            $hash = (Get-FileHash -Path $item.Path -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($item.Name)"
+          }
+          [System.IO.File]::WriteAllLines((Join-Path $distRoot 'SHA256SUMS.txt'), [string[]]$checksumLines)
+          Get-Content (Join-Path $distRoot 'SHA256SUMS.txt')
+
+      - name: Prepare GitHub Release notes
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $notesSrc = Join-Path $PWD "docs\RELEASE_NOTES_$tag.md"
+          $notesOut = Join-Path $PWD 'dist\RELEASE_NOTES.md'
+
+          if (Test-Path $notesSrc) {
+            $body = Get-Content -Raw -Path $notesSrc
+          } else {
+            $body = @(
+              "# ReviveBox $tag — Old Games Second Chance"
+              ''
+              'Portable Windows 10/11 (x64) release containing `ReviveBox.exe`, `ogsc.exe`, bundled `recipes/games/`, and `README.md`.'
+            ) -join "`n"
+          }
+
+          $checksums = (Get-Content -Raw -Path (Join-Path $PWD 'dist\SHA256SUMS.txt')).TrimEnd()
+          $noteLines = @(
+            $body.TrimEnd()
+            ''
+            '---'
+            ''
+            '## 🔐 Release Checksums (`SHA256SUMS.txt`)'
+            ''
+            '```text'
+            $checksums
+            '```'
+          )
+          [System.IO.File]::WriteAllText($notesOut, ($noteLines -join "`n"))
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ReviveBox ${{ steps.meta.outputs.tag }} — Old Games Second Chance
+          body_path: dist/RELEASE_NOTES.md
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          files: |
+            dist/ReviveBox-*-windows-x64.zip
+            dist/SHA256SUMS.txt
