@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "game_id": "darkspore-2011",
+  "title": "Darkspore",
+  "release_year": 2011,
+  "developer": "Maxis",
+  "publisher": "Electronic Arts",
+  "metadata": {
+    "recipe_version": "1.0.2",
+    "authors": [
+      "Old Games - Second Chance Maintainers"
+    ],
+    "license": "MIT",
+    "updated_at": "2026-11-22",
+    "pcgamingwiki_url": "https://www.pcgamingwiki.com/wiki/Darkspore",
+    "steam_app_id": 99890,
+    "cover_art_url": "https://images.launchbox-app.com/32dccd68-0cfe-4057-8505-622d060c8890.jpg",
+    "required_game_version": "v5.3.0.103 (Steam Demo) or v5.3.0.127 (Latest) + latest Visual C++ Redistributable (DVD v5.3.0.15 is incompatible with ReCap)",
+    "incompatible_releases": [
+      "retail-dvd-5.3.0.15"
+    ],
+    "notes": "Verified against both Steam Demo v5.3.0.103 (`DarksporeBin/Darkspore.exe` SHA-256 3c7248a4...73ee5b, ReCap compatible) and EA retail DVD v5.3.0.15 (`DarksporeBin/Darkspore.exe` SHA-256 3b499380...4dc2d8, marked incompatible with ReCap v0.7.2)."
+  },
+  "baseline_health": "broken_on_win11",
+  "post_fix_health": "partially_playable",
+  "releases": [
+    {
+      "release_id": "steam-5.3.0.103",
+      "label": "Steam Release / Demo (v5.3.0.103 — ReCap Compatible)",
+      "distribution": "steam",
+      "version": "5.3.0.103",
+      "region": "Global",
+      "executable_path": "DarksporeBin/Darkspore.exe",
+      "fingerprint": {
+        "file_size_bytes": 18357008,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "ed5db1821ee50d6c624cb489924bc421f8e9ce2dd5b9ff83a34b27140ef322f3"
+        },
+        "sha256": "3c7248a4c6614450290a66c22ab7fcda86052b29a7b555e834d7c23f9b73ee5b",
+        "md5": "86b7b98ee7cb1d9b3dbc5e14f2d6f9db",
+        "verification_status": "verified"
+      },
+      "sentinel_files": [
+        "Data/Arenas_RDX9.package",
+        "Data/ServerData.package",
+        "Data/Config/ConfigManager.txt"
+      ]
+    },
+    {
+      "release_id": "retail-dvd-5.3.0.15",
+      "label": "Retail DVD Release (v5.3.0.15)",
+      "distribution": "retail_dvd",
+      "version": "5.3.0.15",
+      "region": "Global",
+      "executable_path": "DarksporeBin/Darkspore.exe",
+      "fingerprint": {
+        "file_size_bytes": 18034448,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "e01f559c2c17b2afef8e62a16bbee206ad202f12cad28ac32dc448dd1730ffc6"
+        },
+        "sha256": "3b499380f0cce50922003ad59b456d9ef7c47c3d08ecc9cb683868d94a4dc2d8",
+        "md5": "aea93096a98f9ec8e4ec940130ab860e",
+        "verification_status": "verified"
+      },
+      "sentinel_files": [
+        "Data/Arenas_RDX9.package",
+        "Data/ServerData.package",
+        "Data/Config/ConfigManager.txt"
+      ]
+    }
+  ],
+  "known_issues": [
+    {
+      "id": "ea-server-shutdown",
+      "category": "legacy_drm",
+      "severity": "blocker",
+      "summary": "Official EA authentication and matchmaking servers were permanently shut down in March 2016",
+      "details": "Darkspore's client requires an online EA/SporeLabs endpoint at startup and login. Open-source Resurrection Capsule (ReCap v0.7.2) provides `RecapLauncher.exe`, `RecapHooks.dll`, and a local `recap_server.exe` to emulate the offline login/hero server locally.",
+      "fixed_by_fixes": [
+        "resurrection_capsule"
+      ],
+      "user_action_required": "ReCap v0.7.2 requires the latest Microsoft Visual C++ Redistributable (x86/x64) and officially supports Darkspore v5.3.0.103 (Steam Demo) or v5.3.0.127 (Latest); unpatched retail DVD v5.3.0.15 is marked incompatible by ReCap."
+    },
+    {
+      "id": "modern-gpu-and-fps-instability",
+      "category": "high_fps_physics",
+      "severity": "major",
+      "summary": "Modern GPUs default to unrecognized fallback settings and uncapped FPS causes Maxis engine instability",
+      "details": "Unrecognized GPUs in `Data/Config/ConfigManager.txt` fall back to `$gpuLevelMedium`, and uncapped high refresh rates can destabilize timers. Patching `ConfigManager.txt` promotes unrecognized cards to `$gpuLevelHigh` and adds `intProp frameLimitMS 17` (~60 FPS cap). An optional dgVoodoo 2 D3D9 wrapper further stabilizes rendering on Windows 10/11.",
+      "fixed_by_fixes": [
+        "maxis_engine_60fps_tuning",
+        "dgvoodoo2_wrapper"
+      ]
+    },
+    {
+      "id": "multicore-stutter",
+      "category": "cpu_affinity_and_timing",
+      "severity": "minor",
+      "summary": "High-DPI scaling issues, fullscreen presentation drops, and high-core-count CPU stutter",
+      "details": "Applies per-user HKCU `HIGHDPIAWARE` and `DISABLEDXMAXIMIZEDWINDOWEDMODE` shims to `DarksporeBin/Darkspore.exe` and caps CPU affinity to 4 logical cores at AboveNormal priority on launch.",
+      "fixed_by_fixes": [
+        "win11_stability_tuning"
+      ]
+    },
+    {
+      "id": "appdata-save-isolation",
+      "category": "permissions_and_virtual_store",
+      "severity": "enhancement",
+      "summary": "Prepare per-game `.ogsc_sandbox/saves` directory for portable backups",
+      "details": "Initializes `.ogsc_sandbox/saves` inside the Darkspore folder for keeping clean local backups without touching OS user profile folders.",
+      "fixed_by_fixes": [
+        "portable_sandbox"
+      ]
+    }
+  ],
+  "runtime_requirements": {
+    "architecture": "win32",
+    "requires_16bit_emulator": false,
+    "native_graphics_api": [
+      "Direct3D 9"
+    ],
+    "target_graphics_api": "Direct3D 11",
+    "requires_admin": false
+  },
+  "sandbox": {
+    "enabled_by_default": false,
+    "sandbox_root": ".ogsc_sandbox",
+    "redirect_documents": false,
+    "redirect_appdata_local": false,
+    "redirect_appdata_roaming": false,
+    "known_save_subpaths": [
+      "saves"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "resurrection_capsule",
+      "title": "Resurrection Capsule (ReCap v0.7.2) Offline Server & Launcher",
+      "description": "Downloads SHA-256-verified open-source ReCap v0.7.2 (GPL-3.0) into `DarksporeBin/` (`RecapLauncher.exe`, `RecapHooks.dll`, local `Server/recap_server.exe`) and configures the launcher to start `DarksporeBin/RecapLauncher.exe`. Note: ReCap supports v5.3.0.103 / v5.3.0.127 and marks DVD v5.3.0.15 incompatible.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "install-recap-v072",
+          "name": "Install Resurrection Capsule v0.7.2",
+          "description": "Downloads verified `resurrection-capsule-windows-x64.zip` and extracts `RecapLauncher.exe`, `RecapHooks.dll`, `RecapHooks.toml`, and `Server/` into `DarksporeBin/`.",
+          "action": {
+            "type": "download_verified_zip",
+            "url": "https://github.com/Resurrection-Capsule/Resurrection-Capsule/releases/download/v0.7.2/resurrection-capsule-windows-x64.zip",
+            "sha256": "a5758cdb6d1274aab137274d6694c546c7c2c2bdb4a6daf21af0b1558f946d7e",
+            "verification_status": "verified",
+            "size_bytes": 16095141,
+            "archive_format": "zip",
+            "extract_to": "DarksporeBin",
+            "include_patterns": [],
+            "strip_components": 0,
+            "overwrite_existing": true,
+            "license": "GPL-3.0",
+            "source_repo": "https://github.com/Resurrection-Capsule/Resurrection-Capsule"
+          }
+        }
+      ]
+    },
+    {
+      "id": "maxis_engine_60fps_tuning",
+      "title": "Modern GPU High-Preset & 60 FPS Stability Cap (`ConfigManager.txt`)",
+      "description": "Applies a verified bsdiff patch to `Data/Config/ConfigManager.txt` raising unrecognized modern GPU classification from `$gpuLevelMedium` to `$gpuLevelHigh` and appending `intProp frameLimitMS 17` (~60 FPS stability cap).",
+      "recommended": true,
+      "applies_to_releases": [
+        "steam-5.3.0.103",
+        "retail-dvd-5.3.0.15"
+      ],
+      "steps": [
+        {
+          "id": "patch-configmanager-60fps-steam",
+          "name": "Patch ConfigManager.txt (v5.3.0.103 High GPU + 60 FPS Cap)",
+          "description": "Verifies original v5.3.0.103 `Data/Config/ConfigManager.txt` hash and applies verified bsdiff patch (backed up cleanly to `.ogsc_backup`).",
+          "applies_to_releases": [
+            "steam-5.3.0.103"
+          ],
+          "action": {
+            "type": "apply_binary_bsdiff_patch",
+            "target_file": "Data/Config/ConfigManager.txt",
+            "patch_source": {
+              "kind": "local_manifest_relative",
+              "path": "patches/darkspore_2011/configmanager_60fps_modern_gpu_5.3.0.103.bsdiff",
+              "sha256": "10d04625fbc6d3692db504c7479181f80dac39737c73a9a7cd092c0b5ff97f9c"
+            },
+            "expected_original_sha256": "aaa2608c84d6588b7228e9ca8a9bf507e45caa10b22f61bd7da94bb05e3cf4b9",
+            "expected_patched_sha256": "e0fc6aa430fb8baaa2631e85888e74c02e8060ab5d10c5e8a43a587da37ab540",
+            "verification_status": "verified",
+            "backup_original": true
+          }
+        },
+        {
+          "id": "patch-configmanager-60fps",
+          "name": "Patch ConfigManager.txt (v5.3.0.15 High GPU + 60 FPS Cap)",
+          "description": "Verifies original v5.3.0.15 `Data/Config/ConfigManager.txt` hash and applies verified bsdiff patch (backed up cleanly to `.ogsc_backup`).",
+          "applies_to_releases": [
+            "retail-dvd-5.3.0.15"
+          ],
+          "action": {
+            "type": "apply_binary_bsdiff_patch",
+            "target_file": "Data/Config/ConfigManager.txt",
+            "patch_source": {
+              "kind": "local_manifest_relative",
+              "path": "patches/darkspore_2011/configmanager_60fps_modern_gpu.bsdiff",
+              "sha256": "7e9839905453ea797b367d65816ba94cc0d4a521f035bf0443a9cdc1dc034b19"
+            },
+            "expected_original_sha256": "92b9915b1a071657fd9f3d44c46552cdf315ac80cd9eac65e7a1aec654ea9561",
+            "expected_patched_sha256": "96bad115646487066f545ab35da784f0f0795023ad48192ad47d8470bec326ca",
+            "verification_status": "verified",
+            "backup_original": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "win11_stability_tuning",
+      "title": "Windows 10/11 DPI, Fullscreen & 4-Core Affinity",
+      "description": "Applies per-user HKCU AppCompatFlags (`HIGHDPIAWARE`, `DISABLEDXMAXIMIZEDWINDOWEDMODE`) to `DarksporeBin/Darkspore.exe` and caps CPU affinity to 4 logical cores at AboveNormal priority.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "apply-compat-flags",
+          "name": "Apply Windows High-DPI & Presentation Flags",
+          "description": "Writes non-destructive per-user HKCU AppCompatFlags for `DarksporeBin/Darkspore.exe`.",
+          "os_filter": {
+            "min_windows_build": 17763
+          },
+          "action": {
+            "type": "set_registry_compat_flags",
+            "hive": "hkcu",
+            "target_executable": "DarksporeBin/Darkspore.exe",
+            "flags": [
+              {
+                "flag": "high_dpi_aware"
+              },
+              {
+                "flag": "disable_fullscreen_optimizations"
+              }
+            ],
+            "merge_with_existing": true
+          }
+        },
+        {
+          "id": "limit-cpu-affinity",
+          "name": "Cap CPU Affinity to 4 Logical Cores",
+          "description": "Constrains process affinity to 4 logical cores with AboveNormal priority at launch.",
+          "action": {
+            "type": "limit_cpu_affinity",
+            "mode": {
+              "policy": "max_logical_cores",
+              "count": 4
+            },
+            "apply_method": "launcher_process_mask",
+            "process_priority": "above_normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dgvoodoo2_wrapper",
+      "title": "dgVoodoo 2 Direct3D 9 -> Direct3D 11 Wrapper",
+      "description": "Deploys dgVoodoo 2 x86 `d3d9.dll` and `dgVoodoo.conf` into `DarksporeBin/`. Recommended only if the native D3D9 renderer flickers or crashes on Alt-Tab.",
+      "recommended": false,
+      "steps": [
+        {
+          "id": "deploy-dgvoodoo2-optional",
+          "name": "Deploy dgVoodoo 2 D3D9 Wrapper",
+          "description": "Translates Direct3D 9 to Direct3D 11 inside `DarksporeBin/`.",
+          "action": {
+            "type": "deploy_wrapper",
+            "wrapper": {
+              "kind": "dgvoodoo2",
+              "api_targets": [
+                "d3d9"
+              ],
+              "arch": "x86",
+              "config_overrides": {
+                "DirectX": {
+                  "DisableAndPassThru": "false",
+                  "FastVideoMemoryAccess": "true",
+                  "dgVoodooWatermark": "false"
+                }
+              }
+            },
+            "min_toolkit_version": "2.82.3",
+            "target_dir": "DarksporeBin"
+          }
+        }
+      ]
+    },
+    {
+      "id": "portable_sandbox",
+      "title": "Portable Save Directory (`.ogsc_sandbox/saves`)",
+      "description": "Creates `.ogsc_sandbox/saves` inside the Darkspore folder for clean portable backup storage.",
+      "recommended": false,
+      "steps": [
+        {
+          "id": "init-portable-sandbox",
+          "name": "Initialize Portable Save Sandbox",
+          "description": "Creates `.ogsc_sandbox/saves` without modifying OS profile directories.",
+          "action": {
+            "type": "configure_sandbox",
+            "create_directories": [
+              ".ogsc_sandbox",
+              ".ogsc_sandbox/saves"
+            ],
+            "migrate_existing_saves_copy_only": false
+          }
+        }
+      ]
+    }
+  ],
+  "launch": {
+    "default_executable": "DarksporeBin/Darkspore.exe",
+    "fix_executable_overrides": {
+      "resurrection_capsule": "DarksporeBin/RecapLauncher.exe"
+    },
+    "working_directory": "DarksporeBin"
+  },
+  "rollback": {
+    "strategy": "automatic_with_extras",
+    "backup_directory": ".ogsc_backup",
+    "preserve_user_saves": true,
+    "restore_registry_values": true,
+    "extra_cleanup_paths": [
+      "DarksporeBin/RecapLauncher.exe",
+      "DarksporeBin/RecapHooks.dll",
+      "DarksporeBin/RecapHooks.toml",
+      "DarksporeBin/d3d9.dll",
+      "DarksporeBin/dgVoodoo.conf"
+    ],
+    "custom_actions": [
+      {
+        "type": "remove_registry_compat_flags",
+        "hive": "hkcu",
+        "target_executable": "DarksporeBin/Darkspore.exe"
+      }
+    ]
+  }
+}

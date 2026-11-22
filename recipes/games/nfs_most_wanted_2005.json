@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "game_id": "nfs-most-wanted-2005",
+  "title": "Need for Speed: Most Wanted (2005)",
+  "release_year": 2005,
+  "developer": "EA Canada",
+  "publisher": "Electronic Arts",
+  "metadata": {
+    "recipe_version": "1.2.3",
+    "authors": [
+      "Old Games - Second Chance Maintainers"
+    ],
+    "license": "MIT",
+    "updated_at": "2026-11-22",
+    "pcgamingwiki_url": "https://www.pcgamingwiki.com/wiki/Need_for_Speed:_Most_Wanted_(2005)",
+    "steamgriddb_id": 5279480,
+    "cover_art_url": "https://upload.wikimedia.org/wikipedia/en/8/8e/Need_for_Speed_Most_Wanted_Box_Art.jpg",
+    "required_game_version": "Official v1.3 build (non-SafeDisc release or optical disc; stock SafeDisc stxt* EXEs are blocked by Windows 10/11 secdrv.sys)",
+    "notes": "EU/PAL 2005 retail release (`speed.exe` SHA-256 c60f1d0f...34d35) and ThirteenAG WidescreenFix archive are live-verified. US/Black Edition template hashes remain marked `unverified_template`."
+  },
+  "baseline_health": "broken_on_win11",
+  "post_fix_health": "ready_to_play",
+  "releases": [
+    {
+      "release_id": "retail-eu-pal-2005",
+      "label": "Retail PC Release (EU/PAL Build)",
+      "distribution": "retail_cd",
+      "version": "1.3",
+      "region": "EU",
+      "executable_path": "speed.exe",
+      "fingerprint": {
+        "file_size_bytes": 7253204,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "52227f9a2bbf40448369f5f8be6b216473c89f7401ef1a73c282a721fc5d31dd"
+        },
+        "sha256": "c60f1d0f65bb81d22579ff5e14108bb66a0bddb9587fb16c339cdd15e6e34d35",
+        "md5": "0d3ce39766db797c9e03ed593db230e7",
+        "verification_status": "verified"
+      },
+      "sentinel_files": [
+        "GLOBAL/GlobalB.lzc",
+        "GLOBAL/GLOBALA.BUN",
+        "CARS/BMWM3GTRE46/GEOMETRY.BIN"
+      ]
+    },
+    {
+      "release_id": "retail-cd-v1.3",
+      "label": "Retail CD/DVD Release (Patched to v1.3)",
+      "distribution": "retail_cd",
+      "version": "1.3",
+      "region": "Global",
+      "executable_path": "speed.exe",
+      "fingerprint": {
+        "file_size_bytes": 6029312,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000101"
+        },
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+        "verification_status": "unverified_template"
+      },
+      "sentinel_files": [
+        "GLOBAL/GlobalB.lzc",
+        "GLOBAL/GLOBALA.BUN",
+        "CARS/BMWM3GTRE46/GEOMETRY.BIN"
+      ]
+    },
+    {
+      "release_id": "black-edition-v1.3",
+      "label": "Black Edition (Patched to v1.3)",
+      "distribution": "retail_dvd",
+      "version": "1.3",
+      "region": "Global",
+      "executable_path": "speed.exe",
+      "fingerprint": {
+        "file_size_bytes": 6029312,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000102"
+        },
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000002",
+        "verification_status": "unverified_template"
+      },
+      "sentinel_files": [
+        "GLOBAL/GlobalB.lzc",
+        "GLOBAL/GLOBALA.BUN",
+        "CARS/BMWM3GTRE46/GEOMETRY.BIN"
+      ]
+    }
+  ],
+  "known_issues": [
+    {
+      "id": "safedisc-drm",
+      "category": "legacy_drm",
+      "severity": "blocker",
+      "summary": "SafeDisc 4.x kernel driver (secdrv.sys) is disabled on Windows 10 and Windows 11",
+      "details": "Original 2005 retail discs rely on SafeDisc DRM whose kernel driver is permanently blocked on modern Windows releases for security reasons, causing speed.exe to silently exit on startup.",
+      "fixed_by_fixes": [],
+      "user_action_required": "Ensure you have installed EA's official v1.3 game patch and that your legally owned installation is a non-SafeDisc release (this launcher never distributes or applies DRM bypasses)."
+    },
+    {
+      "id": "widescreen-fov-hud",
+      "category": "widescreen_and_hud",
+      "severity": "major",
+      "summary": "Missing native 16:9/21:9 resolutions, stretched HUD, and cropped vertical FOV",
+      "details": "Stock v1.3 caps resolutions at 4:3/5:4 modes and stretches 2D HUD gauges horizontally on modern monitors. ThirteenAG's open-source Widescreen Fix dynamically patches resolution, HUD aspect constraints, and FMV scaling.",
+      "fixed_by_fixes": [
+        "widescreen_fix"
+      ]
+    },
+    {
+      "id": "d3d9-shadow-corruption",
+      "category": "graphics_api",
+      "severity": "minor",
+      "summary": "Vanishing or blocky dynamic shadows under bridges and on modern GPU drivers",
+      "details": "Widescreen Fix enables ShadowsFix and 4096-px dynamic shadow maps; an optional dgVoodoo 2 D3D9 wrapper can further stabilize rendering on modern Intel/AMD/NVIDIA drivers.",
+      "fixed_by_fixes": [
+        "widescreen_fix",
+        "dgvoodoo2_wrapper"
+      ]
+    },
+    {
+      "id": "multicore-stutter",
+      "category": "cpu_affinity_and_timing",
+      "severity": "minor",
+      "summary": "Frame pacing stutter on high-core-count modern CPUs",
+      "details": "Capping logical CPU affinity to 4 cores at launch and disabling Windows fullscreen optimizations stabilizes frame pacing without altering game files.",
+      "fixed_by_fixes": [
+        "win11_stability_tuning"
+      ]
+    },
+    {
+      "id": "xinput-controller",
+      "category": "controller_input",
+      "severity": "enhancement",
+      "summary": "Modern Xbox/XInput controllers lack split triggers and proper deadzones under legacy DirectInput",
+      "details": "ThirteenAG WidescreenFix includes built-in, post-unpack XInput controller support (ImproveGamepadSupport = 1, analog stick deadzones, and right-stick camera) with Xbox/PlayStation button prompts across all speed.exe builds without breaking the in-game Controls menu.",
+      "fixed_by_fixes": [
+        "xinput_plus"
+      ]
+    },
+    {
+      "id": "documents-save-pollution",
+      "category": "permissions_and_virtual_store",
+      "severity": "enhancement",
+      "summary": "Default save location writes inside the user Documents directory",
+      "details": "Redirects profile and career saves into the per-game portable `.ogsc_sandbox/saves` directory via Widescreen Fix's CustomUserFilesDirectoryInGameDir setting.",
+      "fixed_by_fixes": [
+        "portable_sandbox"
+      ]
+    }
+  ],
+  "runtime_requirements": {
+    "architecture": "win32",
+    "requires_16bit_emulator": false,
+    "native_graphics_api": [
+      "Direct3D 9"
+    ],
+    "target_graphics_api": "Direct3D 11",
+    "requires_admin": false
+  },
+  "sandbox": {
+    "enabled_by_default": true,
+    "sandbox_root": ".ogsc_sandbox",
+    "redirect_documents": false,
+    "redirect_appdata_local": false,
+    "redirect_appdata_roaming": false,
+    "known_save_subpaths": [
+      "saves"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "widescreen_fix",
+      "title": "ThirteenAG Widescreen Fix + 4K Shadows",
+      "description": "Downloads Ultimate ASI Loader (dinput8.dll) and NFSMostWanted.WidescreenFix.asi, configures your native desktop resolution, locks HUD/FOV aspect ratio, and enables 4096px dynamic shadows in scripts/NFSMostWanted.WidescreenFix.ini.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "download-widescreen-fix",
+          "name": "Install ThirteenAG Widescreen Fix",
+          "description": "Downloads the verified open-source Widescreen Fix archive (Ultimate ASI Loader `dinput8.dll` + `NFSMostWanted.WidescreenFix.asi`).",
+          "action": {
+            "type": "download_verified_zip",
+            "url": "https://github.com/ThirteenAG/WidescreenFixesPack/releases/download/nfsmw/NFSMostWanted.WidescreenFix.zip",
+            "sha256": "7be912197ac19134d5a64dfe61225e4ef85d612c4f64b96045727c3bf6735df4",
+            "verification_status": "verified",
+            "size_bytes": 8911715,
+            "archive_format": "zip",
+            "extract_to": ".",
+            "include_patterns": [
+              "dinput8.dll",
+              "scripts/NFSMostWanted.WidescreenFix.asi",
+              "scripts/NFSMostWanted.WidescreenFix.ini",
+              "scripts/NFSMostWanted.WidescreenFix.tpk"
+            ],
+            "strip_components": 0,
+            "overwrite_existing": true,
+            "license": "MIT",
+            "source_repo": "https://github.com/ThirteenAG/WidescreenFixesPack"
+          }
+        },
+        {
+          "id": "configure-widescreen-ini",
+          "name": "Configure Native Resolution & Shadows",
+          "description": "Sets desktop width/height, HUD aspect ratio lock, and 4096px dynamic shadows in `scripts/NFSMostWanted.WidescreenFix.ini`.",
+          "action": {
+            "type": "write_ini_config",
+            "target_file": "scripts/NFSMostWanted.WidescreenFix.ini",
+            "create_if_missing": true,
+            "encoding": "utf8",
+            "line_ending": "crlf",
+            "sections": {
+              "MAIN": {
+                "AutoFitFE": 1,
+                "FMVWidescreenMode": 1,
+                "FixFOV": 1,
+                "FixHUD": 1,
+                "HudAspectRatioConstraint": "Auto",
+                "ResX": {
+                  "dynamic": "desktop_width"
+                },
+                "ResY": {
+                  "dynamic": "desktop_height"
+                },
+                "Scaling": 1
+              },
+              "GRAPHICS": {
+                "ShadowsFix": 1,
+                "ShadowsRes": 4096
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "portable_sandbox",
+      "title": "Portable Save Sandbox (.ogsc_sandbox/saves)",
+      "description": "Creates `.ogsc_sandbox/saves` inside the game folder, copies existing Documents saves non-destructively, and configures CustomUserFilesDirectoryInGameDir.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "init-portable-sandbox",
+          "name": "Initialize Portable Save Sandbox",
+          "description": "Creates `.ogsc_sandbox/saves` inside the game directory and optionally copies existing saves without deleting originals.",
+          "action": {
+            "type": "configure_sandbox",
+            "create_directories": [
+              ".ogsc_sandbox",
+              ".ogsc_sandbox/saves"
+            ],
+            "migrate_existing_saves_copy_only": true
+          }
+        },
+        {
+          "id": "configure-sandbox-save-ini",
+          "name": "Redirect Saves to Sandbox",
+          "description": "Sets CustomUserFilesDirectoryInGameDir inside `scripts/NFSMostWanted.WidescreenFix.ini`.",
+          "action": {
+            "type": "write_ini_config",
+            "target_file": "scripts/NFSMostWanted.WidescreenFix.ini",
+            "create_if_missing": true,
+            "encoding": "utf8",
+            "line_ending": "crlf",
+            "sections": {
+              "MISC": {
+                "CustomUserFilesDirectoryInGameDir": ".ogsc_sandbox/saves"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "win11_stability_tuning",
+      "title": "Windows 10/11 DPI, Presentation & 4-Core Affinity",
+      "description": "Writes per-user HKCU AppCompatFlags (HIGHDPIAWARE + DISABLEDXMAXIMIZEDWINDOWEDMODE) for speed.exe and caps runtime CPU affinity to 4 cores to eliminate frame-pacing stutter.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "apply-compat-flags",
+          "name": "Apply Windows High-DPI & Presentation Flags",
+          "description": "Applies non-destructive per-user HKCU AppCompat flags disabling DPI virtualization and fullscreen presentation interference.",
+          "os_filter": {
+            "min_windows_build": 17763
+          },
+          "action": {
+            "type": "set_registry_compat_flags",
+            "hive": "hkcu",
+            "target_executable": "speed.exe",
+            "flags": [
+              {
+                "flag": "high_dpi_aware"
+              },
+              {
+                "flag": "disable_fullscreen_optimizations"
+              }
+            ],
+            "merge_with_existing": true
+          }
+        },
+        {
+          "id": "limit-cpu-affinity",
+          "name": "Cap CPU Affinity to 4 Logical Cores",
+          "description": "Applies a runtime processor affinity mask on launch to eliminate frame-pacing stutter on high-core CPUs.",
+          "action": {
+            "type": "limit_cpu_affinity",
+            "mode": {
+              "policy": "max_logical_cores",
+              "count": 4
+            },
+            "apply_method": "launcher_process_mask",
+            "process_priority": "above_normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dgvoodoo2_wrapper",
+      "title": "dgVoodoo 2 Direct3D 9 -> Direct3D 11 Wrapper",
+      "description": "Deploys dgVoodoo 2 x86 `d3d9.dll` and `dgVoodoo.conf` into the game root. Recommended if you experience alt-tab crashes or GPU driver-specific shadow glitches.",
+      "recommended": false,
+      "steps": [
+        {
+          "id": "deploy-dgvoodoo2-optional",
+          "name": "Deploy dgVoodoo 2 D3D9 Wrapper",
+          "description": "Translates Direct3D 9 to Direct3D 11 for systems experiencing driver-specific shadow or alt-tab glitches.",
+          "action": {
+            "type": "deploy_wrapper",
+            "wrapper": {
+              "kind": "dgvoodoo2",
+              "api_targets": [
+                "d3d9"
+              ],
+              "arch": "x86",
+              "config_overrides": {
+                "DirectX": {
+                  "DisableAndPassThru": "false",
+                  "FastVideoMemoryAccess": "true",
+                  "dgVoodooWatermark": "false"
+                }
+              }
+            },
+            "min_toolkit_version": "2.82.3",
+            "target_dir": "."
+          }
+        }
+      ]
+    },
+    {
+      "id": "xinput_plus",
+      "title": "Modern Controller Support (XInput Gamepad & Xbox Icons)",
+      "description": "Enables ThirteenAG WidescreenFix's built-in XInput controller support, Xbox button prompts, 10% analog stick deadzones, and right-stick camera in scripts/NFSMostWanted.WidescreenFix.ini without injecting conflicting controller hooks.",
+      "recommended": false,
+      "steps": [
+        {
+          "id": "ensure-widescreen-xinput-runtime",
+          "name": "Ensure WidescreenFix XInput Runtime",
+          "description": "Ensures ThirteenAG's verified Ultimate ASI Loader (dinput8.dll) and NFSMostWanted.WidescreenFix.asi are present without overwriting existing INI settings.",
+          "action": {
+            "type": "download_verified_zip",
+            "url": "https://github.com/ThirteenAG/WidescreenFixesPack/releases/download/nfsmw/NFSMostWanted.WidescreenFix.zip",
+            "sha256": "7be912197ac19134d5a64dfe61225e4ef85d612c4f64b96045727c3bf6735df4",
+            "verification_status": "verified",
+            "size_bytes": 8911715,
+            "archive_format": "zip",
+            "extract_to": ".",
+            "include_patterns": [
+              "dinput8.dll",
+              "scripts/NFSMostWanted.WidescreenFix.asi",
+              "scripts/NFSMostWanted.WidescreenFix.ini",
+              "scripts/NFSMostWanted.WidescreenFix.tpk"
+            ],
+            "strip_components": 0,
+            "overwrite_existing": false,
+            "license": "MIT",
+            "source_repo": "https://github.com/ThirteenAG/WidescreenFixesPack"
+          }
+        },
+        {
+          "id": "configure-widescreen-gamepad-xinput",
+          "name": "Configure XInput Gamepad, Deadzones & Right-Stick Camera",
+          "description": "Enables ImproveGamepadSupport = 1 (Xbox icons), 10% stick deadzones, and right-stick camera control in scripts/NFSMostWanted.WidescreenFix.ini.",
+          "action": {
+            "type": "write_ini_config",
+            "target_file": "scripts/NFSMostWanted.WidescreenFix.ini",
+            "create_if_missing": true,
+            "encoding": "utf8",
+            "line_ending": "crlf",
+            "sections": {
+              "MISC": {
+                "ImproveGamepadSupport": 1,
+                "LeftStickDeadzone": "10.0",
+                "RightStickDeadzone": "10.0"
+              },
+              "CAMERA": {
+                "Enable": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "launch": {
+    "default_executable": "speed.exe",
+    "working_directory": "."
+  },
+  "rollback": {
+    "strategy": "automatic_with_extras",
+    "backup_directory": ".ogsc_backup",
+    "preserve_user_saves": true,
+    "restore_registry_values": true,
+    "extra_cleanup_paths": [
+      "dinput8.dll",
+      "d3d9.dll",
+      "dgVoodoo.conf",
+      "GLOBAL/XtendedInputButtons.tpk",
+      "scripts/NFSMostWanted.WidescreenFix.asi",
+      "scripts/NFSMostWanted.WidescreenFix.ini",
+      "scripts/NFSMostWanted.WidescreenFix.tpk",
+      "scripts/NFS_XtendedInput.asi",
+      "scripts/NFS_XtendedInput.ini",
+      "scripts/NFS_XtendedInput.default.ini",
+      "scripts/nfs_cursor.cur"
+    ],
+    "custom_actions": [
+      {
+        "type": "delete_directory_if_empty",
+        "path": "scripts"
+      },
+      {
+        "type": "remove_registry_compat_flags",
+        "hive": "hkcu",
+        "target_executable": "speed.exe"
+      }
+    ]
+  }
+}

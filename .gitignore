@@ -1,0 +1,6 @@
+/target
+*.pdb
+.ogsc_backup/
+.ogsc_sandbox/
+.DS_Store
+Thumbs.db

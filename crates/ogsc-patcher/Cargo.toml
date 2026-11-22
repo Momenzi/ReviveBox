@@ -1,0 +1,32 @@
+[package]
+name = "ogsc-patcher"
+description = "Transactional patch execution engine, verified downloader, archive extractor, bsdiff patcher, INI editor, Win32 AppCompat registry writer, and launcher for Old Games - Second Chance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+bsdiff.workspace = true
+encoding_rs.workspace = true
+glob-match.workspace = true
+ogsc-recipes.workspace = true
+ogsc-scanner.workspace = true
+ogsc-wrappers.workspace = true
+sevenz-rust.workspace = true
+thiserror.workspace = true
+ureq.workspace = true
+url.workspace = true
+zip.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys.workspace = true
+winreg.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,2272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameRecipe",
+  "description": "Complete declarative compatibility manifest for a legacy PC game (1995–2012).",
+  "type": "object",
+  "properties": {
+    "baseline_health": {
+      "description": "Unpatched health status on modern Windows 10/11 systems.",
+      "$ref": "#/$defs/HealthStatus"
+    },
+    "developer": {
+      "description": "Original game developer studio, if known.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fixes": {
+      "description": "Ordered list of selectable compatibility fix groups presented in the Patch Advisor popup.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FixOption"
+      }
+    },
+    "game_id": {
+      "description": "Stable lowercase slug identifying the game (for example `nfs-most-wanted-2005`).",
+      "type": "string"
+    },
+    "known_issues": {
+      "description": "Cataloged Windows 10/11 compatibility issues shown in the Patch Advisor popup.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/KnownIssue"
+      }
+    },
+    "launch": {
+      "description": "Process launch arguments, working directory, environment overrides, or emulator hooks.",
+      "$ref": "#/$defs/LaunchConfig"
+    },
+    "metadata": {
+      "description": "Provenance, authorship, licensing, and external artwork lookup metadata.",
+      "$ref": "#/$defs/RecipeMetadata"
+    },
+    "post_fix_health": {
+      "description": "Expected health status once all recommended fixes (and user prerequisites) are applied.",
+      "$ref": "#/$defs/HealthStatus"
+    },
+    "publisher": {
+      "description": "Original PC publisher, if known.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "release_year": {
+      "description": "Original PC release year (validated within `1980..=2030`).",
+      "type": "integer",
+      "format": "uint16",
+      "maximum": 65535,
+      "minimum": 0
+    },
+    "releases": {
+      "description": "Recognized game releases and executable fingerprints used for BYOG identification.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GameRelease"
+      }
+    },
+    "rollback": {
+      "description": "Non-destructive backup and uninstall instructions to cleanly revert all applied fixes.",
+      "$ref": "#/$defs/RollbackPlan"
+    },
+    "runtime_requirements": {
+      "description": "Target binary architecture, graphics APIs, and emulator requirements.",
+      "$ref": "#/$defs/RuntimeRequirements"
+    },
+    "sandbox": {
+      "description": "Optional per-game portable sandbox redirection settings to keep Documents/AppData clean.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SandboxConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "description": "Integer schema version (must match [`CURRENT_SCHEMA_VERSION`]).",
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0
+    },
+    "title": {
+      "description": "Full display title of the game.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "game_id",
+    "title",
+    "release_year",
+    "metadata",
+    "baseline_health",
+    "post_fix_health",
+    "releases",
+    "known_issues",
+    "runtime_requirements",
+    "fixes",
+    "launch",
+    "rollback"
+  ],
+  "$defs": {
+    "AffinityApplyMethod": {
+      "description": "How CPU affinity restriction is enforced on Windows.",
+      "oneOf": [
+        {
+          "description": "Set via `SetProcessAffinityMask` on the launched child process (non-persistent).",
+          "type": "string",
+          "const": "launcher_process_mask"
+        },
+        {
+          "description": "Apply Windows `SingleProcAffinity` AppCompat shim in the registry.",
+          "type": "string",
+          "const": "registry_shim"
+        }
+      ]
+    },
+    "AppCompatFlag": {
+      "description": "Standard Windows `AppCompatFlags\\Layers` compatibility tokens.",
+      "oneOf": [
+        {
+          "description": "Windows 95 compatibility shim (`WIN95`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win95"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows 98 / Me compatibility shim (`WIN98`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win98"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows XP Service Pack 2 shim (`WINXPSP2`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win_xp_sp2"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows XP Service Pack 3 shim (`WINXPSP3`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win_xp_sp3"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows Vista Service Pack 2 shim (`VISTASP2`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "vista_sp2"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows 7 shim (`WIN7RTM`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win7_rtm"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Windows 8 shim (`WIN8RTM`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "win8_rtm"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Force 256-color (8-bit paletted) mode (`256COLOR`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "color8_bit"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Force 16-bit (65536-color) mode (`16BITCOLOR`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "color16_bit"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Force 640x480 resolution (`640X480`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "resolution640x480"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Legacy DPI scaling override (`HIGHDPIAWARE`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "high_dpi_aware"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Application DPI unaware override (`DPIUNAWARE`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "dpi_unaware"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Disable fullscreen optimizations (`DISABLEDXMAXIMIZEDWINDOWEDMODE`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "disable_fullscreen_optimizations"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Request administrator elevation (`RUNASADMIN`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "run_as_admin"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Force single-core affinity shim (`SingleProcAffinity`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "single_proc_affinity"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Disable Windows DWM/themes compatibility (`DISABLETHEMES`).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "disable_themes"
+            }
+          },
+          "required": [
+            "flag"
+          ]
+        },
+        {
+          "description": "Arbitrary verified Windows AppCompat shim token (must be ASCII without whitespace).",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "type": "string",
+              "const": "custom"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "flag",
+            "value"
+          ]
+        }
+      ]
+    },
+    "ArchiveFormat": {
+      "description": "Supported archive container formats for `DownloadVerifiedZip`.",
+      "oneOf": [
+        {
+          "description": "Standard PKZIP `.zip` archive.",
+          "type": "string",
+          "const": "zip"
+        },
+        {
+          "description": "7-Zip `.7z` archive.",
+          "type": "string",
+          "const": "7z"
+        }
+      ]
+    },
+    "BinaryArchitecture": {
+      "description": "CPU/OS executable format of a legacy title.",
+      "oneOf": [
+        {
+          "description": "MS-DOS 16-bit / DOS4GW 32-bit extender.",
+          "type": "string",
+          "const": "dos"
+        },
+        {
+          "description": "Windows 16-bit New Executable (NE).",
+          "type": "string",
+          "const": "win16"
+        },
+        {
+          "description": "Windows 32-bit Portable Executable (PE32).",
+          "type": "string",
+          "const": "win32"
+        },
+        {
+          "description": "Windows 64-bit Portable Executable (PE32+).",
+          "type": "string",
+          "const": "win64"
+        }
+      ]
+    },
+    "BinaryPatchSource": {
+      "description": "Origin for a `bsdiff` patch payload.",
+      "oneOf": [
+        {
+          "description": "Download the `.bsdiff` file over HTTPS and verify its SHA-256 before patching.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "download"
+            },
+            "sha256": {
+              "description": "Expected lowercase SHA-256 digest of the `.bsdiff` file.",
+              "type": "string"
+            },
+            "url": {
+              "description": "HTTPS URL of the `.bsdiff` patch file.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "url",
+            "sha256"
+          ]
+        },
+        {
+          "description": "Read a `.bsdiff` file bundled relative to the recipe manifest directory.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "local_manifest_relative"
+            },
+            "path": {
+              "description": "Relative path under the recipe/patches directory.",
+              "type": "string"
+            },
+            "sha256": {
+              "description": "Expected lowercase SHA-256 digest of the `.bsdiff` file.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "path",
+            "sha256"
+          ]
+        }
+      ]
+    },
+    "CpuAffinityMode": {
+      "description": "Policy defining how logical CPU cores are restricted for legacy titles.",
+      "oneOf": [
+        {
+          "description": "Pin the process strictly to logical core 0 (`0x1`) to fix RDTSC drift / race conditions.",
+          "type": "object",
+          "properties": {
+            "policy": {
+              "type": "string",
+              "const": "single_core"
+            }
+          },
+          "required": [
+            "policy"
+          ]
+        },
+        {
+          "description": "Cap the process to at most `count` logical cores (`(1 << min(count, avail, 64)) - 1`).",
+          "type": "object",
+          "properties": {
+            "count": {
+              "description": "Maximum number of logical CPU cores allowed (`>= 1`).",
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "policy": {
+              "type": "string",
+              "const": "max_logical_cores"
+            }
+          },
+          "required": [
+            "policy",
+            "count"
+          ]
+        },
+        {
+          "description": "Disable Hyper-Threading/SMT sibling threads (even-numbered logical cores only, capped by `max_cores`).",
+          "type": "object",
+          "properties": {
+            "max_cores": {
+              "description": "Optional cap on how many even-numbered logical cores to expose.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0
+            },
+            "policy": {
+              "type": "string",
+              "const": "physical_cores_only"
+            }
+          },
+          "required": [
+            "policy"
+          ]
+        },
+        {
+          "description": "Explicit 64-bit Windows `SetProcessAffinityMask` bitmask.",
+          "type": "object",
+          "properties": {
+            "mask": {
+              "description": "Non-zero 64-bit processor bitmask.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "policy": {
+              "type": "string",
+              "const": "explicit_mask"
+            }
+          },
+          "required": [
+            "policy",
+            "mask"
+          ]
+        }
+      ]
+    },
+    "DgVoodooApi": {
+      "description": "Legacy DirectX / 3dfx Glide DLL targets provided by dgVoodoo 2.",
+      "oneOf": [
+        {
+          "description": "DirectDraw (`DDraw.dll`).",
+          "type": "string",
+          "const": "ddraw"
+        },
+        {
+          "description": "Direct3D Immediate/Retained Mode (`D3DImm.dll`).",
+          "type": "string",
+          "const": "d3d_imm"
+        },
+        {
+          "description": "Direct3D 8 (`D3D8.dll`).",
+          "type": "string",
+          "const": "d3d8"
+        },
+        {
+          "description": "Direct3D 9 (`D3D9.dll`).",
+          "type": "string",
+          "const": "d3d9"
+        },
+        {
+          "description": "Original 3dfx Glide (`Glide.dll`).",
+          "type": "string",
+          "const": "glide"
+        },
+        {
+          "description": "3dfx Glide 2.x (`Glide2x.dll`).",
+          "type": "string",
+          "const": "glide2x"
+        },
+        {
+          "description": "3dfx Glide 3.x (`Glide3x.dll`).",
+          "type": "string",
+          "const": "glide3x"
+        }
+      ]
+    },
+    "Distribution": {
+      "description": "Distribution source of a user-owned legacy game installation.",
+      "oneOf": [
+        {
+          "description": "Physical Compact Disc retail release.",
+          "type": "string",
+          "const": "retail_cd"
+        },
+        {
+          "description": "Physical DVD-ROM retail release.",
+          "type": "string",
+          "const": "retail_dvd"
+        },
+        {
+          "description": "Steam digital storefront release.",
+          "type": "string",
+          "const": "steam"
+        },
+        {
+          "description": "GOG.com DRM-free release.",
+          "type": "string",
+          "const": "gog"
+        },
+        {
+          "description": "EA App / Origin release.",
+          "type": "string",
+          "const": "ea_app"
+        },
+        {
+          "description": "Ubisoft Connect / Uplay release.",
+          "type": "string",
+          "const": "ubisoft_connect"
+        },
+        {
+          "description": "Epic Games Store release.",
+          "type": "string",
+          "const": "epic_games"
+        },
+        {
+          "description": "Legally distributed freeware or open-source release.",
+          "type": "string",
+          "const": "community_freeware"
+        },
+        {
+          "description": "Other legitimate storefront or bundle release.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "DllChainRule": {
+      "description": "Rule specifying how an existing or wrapper DLL is chained/renamed when two tools share the same proxy filename.",
+      "type": "object",
+      "properties": {
+        "chained_as": {
+          "description": "Target filename to deploy the wrapper DLL as (for example `xinput_dinput8.dll` or `dinput8_hook.dll`).",
+          "type": "string"
+        },
+        "notes": {
+          "description": "Optional explanation of how the primary loader invokes this chained DLL.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "original_dll": {
+          "description": "Original proxy DLL filename produced by the wrapper (for example `dinput8.dll`).",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "original_dll",
+        "chained_as"
+      ]
+    },
+    "DllSource": {
+      "description": "Origin for an `ExtractDll` step.",
+      "oneOf": [
+        {
+          "description": "DLL supplied directly by the launcher's bundled `runtime_wrappers` distribution.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "bundled_toolkit"
+            },
+            "relative_path": {
+              "description": "Path inside that bundled toolkit directory.",
+              "type": "string"
+            },
+            "toolkit": {
+              "description": "Toolkit name (for example `dgvoodoo2`, `dxwrapper`, `wined3d`, `xinput_plus`).",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "toolkit",
+            "relative_path"
+          ]
+        },
+        {
+          "description": "DLL extracted from an earlier `download_verified_zip` step in the same recipe.",
+          "type": "object",
+          "properties": {
+            "archive_member": {
+              "description": "Relative entry path inside that downloaded archive.",
+              "type": "string"
+            },
+            "download_step_id": {
+              "description": "`PatchStep::id` of the preceding `download_verified_zip` step.",
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "const": "cached_archive"
+            }
+          },
+          "required": [
+            "kind",
+            "download_step_id",
+            "archive_member"
+          ]
+        }
+      ]
+    },
+    "DynamicIniValue": {
+      "description": "Wrapper object denoting a dynamic runtime-resolved INI value (`{\"dynamic\": \"desktop_width\"}`).",
+      "type": "object",
+      "properties": {
+        "dynamic": {
+          "description": "Runtime value identifier resolved on the user's host before writing the INI file.",
+          "$ref": "#/$defs/DynamicValueKind"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "dynamic"
+      ]
+    },
+    "DynamicValueKind": {
+      "description": "Runtime parameters resolved dynamically from the user's Windows environment.",
+      "oneOf": [
+        {
+          "description": "Primary monitor desktop width in pixels.",
+          "type": "string",
+          "const": "desktop_width"
+        },
+        {
+          "description": "Primary monitor desktop height in pixels.",
+          "type": "string",
+          "const": "desktop_height"
+        },
+        {
+          "description": "Primary monitor refresh rate in Hz.",
+          "type": "string",
+          "const": "refresh_rate_hz"
+        },
+        {
+          "description": "Absolute path to this game's portable sandbox directory.",
+          "type": "string",
+          "const": "game_sandbox_dir"
+        }
+      ]
+    },
+    "EmulatorKind": {
+      "description": "Emulator runtime identifiers for non-Win64-native titles.",
+      "oneOf": [
+        {
+          "description": "DOSBox-X emulator (`dosbox_x`).",
+          "type": "string",
+          "const": "dosbox_x"
+        },
+        {
+          "description": "86Box PC hardware emulator (`86box`).",
+          "type": "string",
+          "const": "86box"
+        }
+      ]
+    },
+    "EmulatorLaunchHook": {
+      "description": "Configuration binding a game launch to DOSBox-X or 86Box.",
+      "type": "object",
+      "properties": {
+        "config_file": {
+          "description": "Game-relative emulator config file generated or referenced at launch.",
+          "type": "string"
+        },
+        "disk_image_hint": {
+          "description": "Optional hint describing user-provided optical/floppy disc image requirements.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "emulator": {
+          "description": "Which bundled/configured emulator executes the title.",
+          "$ref": "#/$defs/EmulatorKind"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "emulator",
+        "config_file"
+      ]
+    },
+    "ExecutableFingerprint": {
+      "description": "Cryptographic and byte-size fingerprint for matching a local executable.",
+      "type": "object",
+      "properties": {
+        "file_size_bytes": {
+          "description": "Exact executable size in bytes for fast pre-filtering during directory scans.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "md5": {
+          "description": "Full lowercase hexadecimal MD5 digest (commonly published on legacy compatibility wikis).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "partial_sha256": {
+          "description": "Fast partial SHA-256 slice (for example first 64 KiB) to rapidly narrow candidates.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialHash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sha256": {
+          "description": "Full lowercase hexadecimal SHA-256 digest of the executable.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verification_status": {
+          "description": "Provenance confidence level of the recorded hash values.",
+          "$ref": "#/$defs/HashVerificationStatus",
+          "default": "verified"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FixOption": {
+      "description": "A selectable compatibility fix group presented to the user in the Patch Advisor popup.",
+      "type": "object",
+      "properties": {
+        "applies_to_releases": {
+          "description": "Release IDs this fix applies to. An empty list means it applies to all releases.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "description": "Clear explanation of what this fix resolves and which files or registry keys it touches.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable fix group identifier unique within the recipe (for example `widescreen_fix`).",
+          "type": "string"
+        },
+        "recommended": {
+          "description": "Whether this fix is pre-checked by default in the Patch Advisor popup.",
+          "type": "boolean",
+          "default": true
+        },
+        "steps": {
+          "description": "Ordered self-contained steps executed if and only if the user selects this fix.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PatchStep"
+          }
+        },
+        "title": {
+          "description": "Human-readable title displayed next to the fix checkbox in the Patch Advisor popup.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "description",
+        "steps"
+      ]
+    },
+    "GameRelease": {
+      "description": "Specific edition, patch level, or storefront release matched by the scanner engine.",
+      "type": "object",
+      "properties": {
+        "distribution": {
+          "description": "Distribution channel or physical release format.",
+          "$ref": "#/$defs/Distribution"
+        },
+        "executable_path": {
+          "description": "Game-relative path to the primary executable to fingerprint.",
+          "type": "string"
+        },
+        "fingerprint": {
+          "description": "Cryptographic and size fingerprint used to identify this exact release.",
+          "$ref": "#/$defs/ExecutableFingerprint"
+        },
+        "label": {
+          "description": "Display label describing edition and patch version.",
+          "type": "string"
+        },
+        "region": {
+          "description": "Optional release region code (for example `US`, `EU`, `Global`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "release_id": {
+          "description": "Release slug unique within this recipe (for example `retail-cd-v1.3`).",
+          "type": "string"
+        },
+        "sentinel_files": {
+          "description": "Additional game-relative data files whose presence boosts identification confidence.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "version": {
+          "description": "Game version string (for example `1.3` or `1.01`).",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "release_id",
+        "label",
+        "distribution",
+        "version",
+        "executable_path",
+        "fingerprint"
+      ]
+    },
+    "HashVerificationStatus": {
+      "description": "Provenance status indicating whether a cryptographic digest has been independently verified.",
+      "oneOf": [
+        {
+          "description": "Verified directly against a known-good binary or official release asset.",
+          "type": "string",
+          "const": "verified"
+        },
+        {
+          "description": "Sourced from trusted community databases (for example PCGamingWiki) awaiting local confirmation.",
+          "type": "string",
+          "const": "community_reported"
+        },
+        {
+          "description": "Placeholder template hash requiring real binary verification before strict release approval.",
+          "type": "string",
+          "const": "unverified_template"
+        }
+      ]
+    },
+    "HealthStatus": {
+      "description": "Compatibility badge shown in the launcher UI.",
+      "oneOf": [
+        {
+          "description": "Crashes, refuses to start, or is blocked by legacy kernel DRM/16-bit incompatibility on Win11.",
+          "type": "string",
+          "const": "broken_on_win11"
+        },
+        {
+          "description": "Starts with severe rendering, audio, or input failures unless a wrapper/shim is deployed.",
+          "type": "string",
+          "const": "needs_wrapper"
+        },
+        {
+          "description": "Boots and runs, but suffers from aspect-ratio, FPS physics, or stability issues.",
+          "type": "string",
+          "const": "partially_playable"
+        },
+        {
+          "description": "Runs reliably on Windows 10/11 with proper scaling, controls, and saves.",
+          "type": "string",
+          "const": "ready_to_play"
+        }
+      ]
+    },
+    "IniEncoding": {
+      "description": "Character encoding used when updating legacy INI files.",
+      "oneOf": [
+        {
+          "description": "UTF-8 without BOM (default for modern ASI/Widescreen INI configs).",
+          "type": "string",
+          "const": "utf8"
+        },
+        {
+          "description": "Windows-1252 / ANSI codepage common in 1998–2008 retail configs.",
+          "type": "string",
+          "const": "windows1252"
+        },
+        {
+          "description": "UTF-16LE with BOM (used by some Unreal Engine / InstallShield INI files).",
+          "type": "string",
+          "const": "utf16_le"
+        }
+      ]
+    },
+    "IniValue": {
+      "description": "Value written to an INI key, supporting static literals or runtime-resolved system parameters.",
+      "anyOf": [
+        {
+          "description": "Placeholder resolved dynamically at patch/launch time on the user's machine.",
+          "$ref": "#/$defs/DynamicIniValue"
+        },
+        {
+          "description": "Boolean setting (formatted per target INI convention, e.g., `1`/`0` or `true`/`false`).",
+          "type": "boolean"
+        },
+        {
+          "description": "Signed 64-bit integer setting.",
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "description": "Floating-point setting.",
+          "type": "number",
+          "format": "double"
+        },
+        {
+          "description": "Literal string setting.",
+          "type": "string"
+        }
+      ]
+    },
+    "IssueCategory": {
+      "description": "Taxonomy of legacy Windows game compatibility failure modes.",
+      "oneOf": [
+        {
+          "description": "Legacy disc DRM kernel drivers blocked on Vista+ (SafeDisc `secdrv.sys`, SecuROM, StarForce).",
+          "type": "string",
+          "const": "legacy_drm"
+        },
+        {
+          "description": "Deprecated DirectDraw, Direct3D 1–9, or 3dfx Glide rendering bugs.",
+          "type": "string",
+          "const": "graphics_api"
+        },
+        {
+          "description": "Physics, AI, or simulation timers tied to frame rate above 60 FPS.",
+          "type": "string",
+          "const": "high_fps_physics"
+        },
+        {
+          "description": "Missing 16:9/21:9 resolutions, stretched HUD, or clipped FOV.",
+          "type": "string",
+          "const": "widescreen_and_hud"
+        },
+        {
+          "description": "DirectSound3D / EAX hardware audio loss or stuttering.",
+          "type": "string",
+          "const": "audio"
+        },
+        {
+          "description": "Legacy DirectInput / WinMM controller axis/trigger incompatibilities.",
+          "type": "string",
+          "const": "controller_input"
+        },
+        {
+          "description": "Multi-core race conditions, RDTSC drift, or modern CPU thread count crashes.",
+          "type": "string",
+          "const": "cpu_affinity_and_timing"
+        },
+        {
+          "description": "16-bit NE/Win16 or MS-DOS binaries unsupported natively on 64-bit Windows (NTVDM absent).",
+          "type": "string",
+          "const": "sixteen_bit_subsystem"
+        },
+        {
+          "description": "Program Files write failures, UAC VirtualStore redirection, or Documents folder clutter.",
+          "type": "string",
+          "const": "permissions_and_virtual_store"
+        },
+        {
+          "description": "Heap corruption, DEP/ASLR issues, or intro codec crashes.",
+          "type": "string",
+          "const": "crash_or_stability"
+        }
+      ]
+    },
+    "IssueSeverity": {
+      "description": "Impact level of a [`KnownIssue`].",
+      "oneOf": [
+        {
+          "description": "Prevents the game from launching or progressing past startup.",
+          "type": "string",
+          "const": "blocker"
+        },
+        {
+          "description": "Severe graphical corruption, frequent crashes, or broken core controls.",
+          "type": "string",
+          "const": "major"
+        },
+        {
+          "description": "Playable but with visual glitches, wrong aspect ratio, or minor audio bugs.",
+          "type": "string",
+          "const": "minor"
+        },
+        {
+          "description": "Quality-of-life improvement (higher shadow resolution, portable saves, modern controller prompts).",
+          "type": "string",
+          "const": "enhancement"
+        }
+      ]
+    },
+    "KnownIssue": {
+      "description": "Documented legacy compatibility defect and its remediation mapping.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "description": "High-level root-cause category.",
+          "$ref": "#/$defs/IssueCategory"
+        },
+        "details": {
+          "description": "Technical explanation of the root cause and fix behavior.",
+          "type": "string"
+        },
+        "fixed_by_fixes": {
+          "description": "Selectable fix IDs from `fixes` that address this issue (empty if manual user action is required).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "id": {
+          "description": "Issue identifier unique within this recipe.",
+          "type": "string"
+        },
+        "severity": {
+          "description": "Impact severity on Windows 10/11.",
+          "$ref": "#/$defs/IssueSeverity"
+        },
+        "summary": {
+          "description": "Short one-line summary shown in the UI issue list.",
+          "type": "string"
+        },
+        "user_action_required": {
+          "description": "Clear BYOG guidance when a prerequisite (such as installing an official publisher patch) needs user action.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "summary",
+        "details"
+      ]
+    },
+    "LaunchConfig": {
+      "description": "Launch invocation settings used after compatibility fixes are applied.",
+      "type": "object",
+      "properties": {
+        "arguments": {
+          "description": "Command-line flags passed to the launched executable.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_executable": {
+          "description": "Default game-relative executable path to spawn.",
+          "type": "string"
+        },
+        "emulator_hook": {
+          "description": "Optional emulator hook for DOS / Win16 titles requiring DOSBox-X or 86Box.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EmulatorLaunchHook"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "environment": {
+          "description": "Extra environment variables injected into the launched process.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fix_executable_overrides": {
+          "description": "Optional fix-specific launch executable overrides keyed by applied `fix_id`\n(for example launching a local revival server wrapper when that fix is active).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "release_executable_overrides": {
+          "description": "Optional release-specific launch executable overrides keyed by `release_id`.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "working_directory": {
+          "description": "Optional game-relative working directory (defaults to the executable's parent directory).",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "default_executable"
+      ]
+    },
+    "LegacyOsProfile": {
+      "description": "Legacy guest OS target for DOSBox-X / 86Box emulator integration hooks.",
+      "oneOf": [
+        {
+          "description": "MS-DOS / FreeDOS environment.",
+          "type": "string",
+          "const": "dos"
+        },
+        {
+          "description": "Windows 3.1 / 3.11 (16-bit protected mode).",
+          "type": "string",
+          "const": "win31"
+        },
+        {
+          "description": "Windows 95.",
+          "type": "string",
+          "const": "win95"
+        },
+        {
+          "description": "Windows 98 / 98 SE.",
+          "type": "string",
+          "const": "win98"
+        }
+      ]
+    },
+    "LineEnding": {
+      "description": "Line ending format when serializing INI changes.",
+      "oneOf": [
+        {
+          "description": "Windows CRLF (`\\r\\n`) — safe for legacy Win32 `GetPrivateProfileStringA` parsers.",
+          "type": "string",
+          "const": "crlf"
+        },
+        {
+          "description": "Unix LF (`\\n`).",
+          "type": "string",
+          "const": "lf"
+        }
+      ]
+    },
+    "OsFilter": {
+      "description": "Optional Windows OS build number filter (`min_windows_build..=max_windows_build`).",
+      "type": "object",
+      "properties": {
+        "max_windows_build": {
+          "description": "Maximum inclusive Windows build number.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "min_windows_build": {
+          "description": "Minimum inclusive Windows build number (for example `19041` for Win10 2004, `22000` for Win11).",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "PartialHash": {
+      "description": "Partial byte-range SHA-256 digest used for ultra-fast initial executable fingerprinting.",
+      "type": "object",
+      "properties": {
+        "length": {
+          "description": "Number of bytes hashed starting at `offset` (must be `> 0`, typically `65536`).",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "offset": {
+          "description": "Byte offset from the start of the file (typically `0`).",
+          "type": "integer",
+          "format": "uint64",
+          "default": 0,
+          "minimum": 0
+        },
+        "sha256": {
+          "description": "Expected lowercase 64-character hex SHA-256 of the byte slice.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "length",
+        "sha256"
+      ]
+    },
+    "PatchAction": {
+      "description": "Declarative action performed by a [`PatchStep`].",
+      "oneOf": [
+        {
+          "description": "Download a verified open-source/community archive over HTTPS and extract selected files.",
+          "type": "object",
+          "properties": {
+            "archive_format": {
+              "description": "Archive container format.",
+              "$ref": "#/$defs/ArchiveFormat"
+            },
+            "extract_to": {
+              "description": "Game-relative destination directory (`\".\"` extracts into the game root).",
+              "type": "string"
+            },
+            "include_patterns": {
+              "description": "Optional glob patterns restricting which archive entries are extracted.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "license": {
+              "description": "SPDX or descriptive license of the community patch (for example `MIT`, `Zlib`).",
+              "type": "string"
+            },
+            "mirror_urls": {
+              "description": "Optional fallback HTTPS mirror URLs.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "overwrite_existing": {
+              "description": "Whether extracted files may overwrite existing files (Originals are backed up first).",
+              "type": "boolean",
+              "default": true
+            },
+            "sha256": {
+              "description": "Expected lowercase hex SHA-256 digest of the downloaded archive.",
+              "type": "string"
+            },
+            "size_bytes": {
+              "description": "Optional expected download size in bytes for progress bars and pre-flight checks.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0
+            },
+            "source_repo": {
+              "description": "Optional upstream repository or release page URL.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "strip_components": {
+              "description": "Number of leading archive path components to strip during extraction.",
+              "type": "integer",
+              "format": "uint8",
+              "default": 0,
+              "maximum": 255,
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "download_verified_zip"
+            },
+            "url": {
+              "description": "Primary HTTPS download URL (must be `https://`).",
+              "type": "string"
+            },
+            "verification_status": {
+              "description": "Provenance/verification status of the archive digest.",
+              "$ref": "#/$defs/HashVerificationStatus",
+              "default": "verified"
+            }
+          },
+          "required": [
+            "type",
+            "url",
+            "sha256",
+            "archive_format",
+            "extract_to",
+            "license"
+          ]
+        },
+        {
+          "description": "Extract or copy a single DLL/ASI/FLT file from the bundled toolkit or an earlier downloaded archive.",
+          "type": "object",
+          "properties": {
+            "backup_original": {
+              "description": "Whether any pre-existing file at `destination_path` must be backed up before replacing.",
+              "type": "boolean",
+              "default": true
+            },
+            "destination_path": {
+              "description": "Game-relative destination file path (for example `dinput8.dll` or `scripts/mod.asi`).",
+              "type": "string"
+            },
+            "expected_sha256": {
+              "description": "Optional expected lowercase SHA-256 digest of the extracted DLL.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source": {
+              "description": "Origin of the DLL file.",
+              "$ref": "#/$defs/DllSource"
+            },
+            "type": {
+              "type": "string",
+              "const": "extract_dll"
+            },
+            "verification_status": {
+              "description": "Provenance/verification status of `expected_sha256`.",
+              "$ref": "#/$defs/HashVerificationStatus",
+              "default": "verified"
+            }
+          },
+          "required": [
+            "type",
+            "source",
+            "destination_path"
+          ]
+        },
+        {
+          "description": "Deploy and configure a bundled compatibility runtime wrapper.",
+          "type": "object",
+          "properties": {
+            "dll_chain_renames": {
+              "description": "Optional DLL rename rules to avoid filename collisions (for example ASI loader + XInput Plus both wanting `dinput8.dll`).",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DllChainRule"
+              }
+            },
+            "min_toolkit_version": {
+              "description": "Optional minimum bundled toolkit version (SemVer or release tag) required by this recipe.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "target_dir": {
+              "description": "Game-relative directory where wrapper DLLs and INI files should be placed (`\".\"` for game root).",
+              "type": "string",
+              "default": "."
+            },
+            "type": {
+              "type": "string",
+              "const": "deploy_wrapper"
+            },
+            "wrapper": {
+              "description": "Specific compatibility toolkit and per-wrapper configuration.",
+              "$ref": "#/$defs/WrapperKind"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "wrapper"
+          ]
+        },
+        {
+          "description": "Apply a verified `bsdiff` binary patch to an existing local game file (non-destructive backup first).",
+          "type": "object",
+          "properties": {
+            "backup_original": {
+              "description": "Whether to back up the original target file prior to patching.",
+              "type": "boolean",
+              "default": true
+            },
+            "expected_original_sha256": {
+              "description": "Required lowercase SHA-256 of the unpatched local file before applying the patch.",
+              "type": "string"
+            },
+            "expected_patched_sha256": {
+              "description": "Required lowercase SHA-256 of the resulting file after applying the patch.",
+              "type": "string"
+            },
+            "patch_source": {
+              "description": "Source of the `.bsdiff` patch payload.",
+              "$ref": "#/$defs/BinaryPatchSource"
+            },
+            "target_file": {
+              "description": "Game-relative target file to patch.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "apply_binary_bsdiff_patch"
+            },
+            "verification_status": {
+              "description": "Provenance/verification status of the expected digests.",
+              "$ref": "#/$defs/HashVerificationStatus",
+              "default": "verified"
+            }
+          },
+          "required": [
+            "type",
+            "target_file",
+            "patch_source",
+            "expected_original_sha256",
+            "expected_patched_sha256"
+          ]
+        },
+        {
+          "description": "Apply Windows Application Compatibility Layers in the registry (`AppCompatFlags\\Layers`).",
+          "type": "object",
+          "properties": {
+            "flags": {
+              "description": "Ordered list of Windows compatibility layer tokens to apply.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AppCompatFlag"
+              }
+            },
+            "hive": {
+              "description": "Target registry hive (`hkcu` strongly preferred for non-destructive per-user isolation).",
+              "$ref": "#/$defs/RegistryHive",
+              "default": "hkcu"
+            },
+            "merge_with_existing": {
+              "description": "Whether to preserve unrelated existing user compatibility flags on that executable.",
+              "type": "boolean",
+              "default": true
+            },
+            "target_executable": {
+              "description": "Game-relative executable path whose resolved full path receives the compatibility flags.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "set_registry_compat_flags"
+            }
+          },
+          "required": [
+            "type",
+            "target_executable",
+            "flags"
+          ]
+        },
+        {
+          "description": "Create or update INI configuration sections without clobbering unrelated keys.",
+          "type": "object",
+          "properties": {
+            "create_if_missing": {
+              "description": "Create parent directories and file if missing.",
+              "type": "boolean",
+              "default": true
+            },
+            "encoding": {
+              "description": "Character encoding used when reading and writing the INI file.",
+              "$ref": "#/$defs/IniEncoding",
+              "default": "utf8"
+            },
+            "line_ending": {
+              "description": "Line ending style expected by the legacy parser or mod.",
+              "$ref": "#/$defs/LineEnding",
+              "default": "crlf"
+            },
+            "sections": {
+              "description": "Nested `Section -> Key -> Value` map of settings to write/merge.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/$defs/IniValue"
+                }
+              }
+            },
+            "target_file": {
+              "description": "Game-relative INI file path.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "write_ini_config"
+            }
+          },
+          "required": [
+            "type",
+            "target_file",
+            "sections"
+          ]
+        },
+        {
+          "description": "Constrain process CPU core affinity and/or priority to prevent legacy timing/thread crashes.",
+          "type": "object",
+          "properties": {
+            "apply_method": {
+              "description": "Mechanism used to enforce affinity (process launch mask or `AppCompatFlags` token).",
+              "$ref": "#/$defs/AffinityApplyMethod"
+            },
+            "mode": {
+              "description": "Policy describing how the Windows processor affinity mask is calculated.",
+              "$ref": "#/$defs/CpuAffinityMode"
+            },
+            "process_priority": {
+              "description": "Optional Windows process priority class applied at launch.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ProcessPriority"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "limit_cpu_affinity"
+            }
+          },
+          "required": [
+            "type",
+            "mode",
+            "apply_method"
+          ]
+        },
+        {
+          "description": "Initialize per-game portable sandbox directories and optional copy-only save migration.",
+          "type": "object",
+          "properties": {
+            "create_directories": {
+              "description": "Relative subdirectories inside the game/sandbox tree to ensure exist before launch.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "migrate_existing_saves_copy_only": {
+              "description": "Copy (never delete) pre-existing saves from standard OS folders into the sandbox.",
+              "type": "boolean",
+              "default": false
+            },
+            "type": {
+              "type": "string",
+              "const": "configure_sandbox"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "PatchStep": {
+      "description": "A single ordered action inside a [`FixOption`] pipeline.",
+      "type": "object",
+      "properties": {
+        "action": {
+          "description": "Concrete action executed during patching.",
+          "$ref": "#/$defs/PatchAction"
+        },
+        "applies_to_releases": {
+          "description": "Release IDs this step applies to. An empty list means it applies to all releases.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "description": "Detailed explanation of what this step modifies and why it is safe.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable step identifier unique across the recipe (referenced by `cached_archive` within the same fix).",
+          "type": "string"
+        },
+        "name": {
+          "description": "Human-readable step name displayed in the Patch & Launch log console.",
+          "type": "string"
+        },
+        "os_filter": {
+          "description": "Optional Windows build range filter restricting when this step executes.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OsFilter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description",
+        "action"
+      ]
+    },
+    "ProcessPriority": {
+      "description": "Windows process priority class applied when launching the game.",
+      "oneOf": [
+        {
+          "description": "Normal scheduling priority.",
+          "type": "string",
+          "const": "normal"
+        },
+        {
+          "description": "Above normal scheduling priority.",
+          "type": "string",
+          "const": "above_normal"
+        },
+        {
+          "description": "High scheduling priority (use cautiously to avoid input starvation).",
+          "type": "string",
+          "const": "high"
+        }
+      ]
+    },
+    "RecipeMetadata": {
+      "description": "Authorship, licensing, and external database identifiers for a recipe.",
+      "type": "object",
+      "properties": {
+        "authors": {
+          "description": "Maintainers or contributors who authored and verified the recipe.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cover_art_url": {
+          "description": "Optional direct HTTPS cover artwork image URL (PNG, JPEG, or WebP) cached locally by the UI.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "incompatible_releases": {
+          "description": "Recognized `release_id`s that are known-incompatible with this recipe's core fix (triggers a prominent UI warning).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "license": {
+          "description": "License governing the recipe file itself (for example `MIT` or `MIT OR Apache-2.0`).",
+          "type": "string"
+        },
+        "notes": {
+          "description": "Optional maintainer notes (for example hash verification status or regional caveats).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pcgamingwiki_url": {
+          "description": "Optional HTTPS link to the PCGamingWiki article documenting these fixes.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recipe_version": {
+          "description": "SemVer string tracking revisions to this recipe (for example `1.0.0`).",
+          "type": "string"
+        },
+        "required_game_version": {
+          "description": "Human-readable required game version, patch level, or runtime prerequisites shown prominently in the UI.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "steam_app_id": {
+          "description": "Optional Steam App ID for artwork or distribution cross-referencing.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "steamgriddb_id": {
+          "description": "Optional SteamGridDB game ID for automatic cover/grid art fetching in the UI.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "updated_at": {
+          "description": "Last modification date in ISO-8601 `YYYY-MM-DD` format.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "recipe_version",
+        "authors",
+        "license",
+        "updated_at"
+      ]
+    },
+    "RegistryHive": {
+      "description": "Windows Registry hive for `AppCompatFlags\\Layers`.",
+      "oneOf": [
+        {
+          "description": "`HKEY_CURRENT_USER\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers`.",
+          "type": "string",
+          "const": "hkcu"
+        },
+        {
+          "description": "`HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers` (requires elevation).",
+          "type": "string",
+          "const": "hklm"
+        }
+      ]
+    },
+    "RollbackAction": {
+      "description": "Individual explicit cleanup step within a [`RollbackPlan`].",
+      "oneOf": [
+        {
+          "description": "Delete a specific file placed by a patch step.",
+          "type": "object",
+          "properties": {
+            "path": {
+              "description": "Game-relative file path to remove.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "delete_file"
+            }
+          },
+          "required": [
+            "type",
+            "path"
+          ]
+        },
+        {
+          "description": "Remove a directory only if it is empty after file cleanup.",
+          "type": "object",
+          "properties": {
+            "path": {
+              "description": "Game-relative directory path.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "delete_directory_if_empty"
+            }
+          },
+          "required": [
+            "type",
+            "path"
+          ]
+        },
+        {
+          "description": "Restore a pre-patch backup of the given original file path.",
+          "type": "object",
+          "properties": {
+            "original_path": {
+              "description": "Game-relative path of the original file to restore from backup.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "restore_backup"
+            }
+          },
+          "required": [
+            "type",
+            "original_path"
+          ]
+        },
+        {
+          "description": "Remove or restore `AppCompatFlags\\Layers` registry state for an executable.",
+          "type": "object",
+          "properties": {
+            "hive": {
+              "description": "Registry hive where the flags were written.",
+              "$ref": "#/$defs/RegistryHive",
+              "default": "hkcu"
+            },
+            "target_executable": {
+              "description": "Game-relative executable path.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "remove_registry_compat_flags"
+            }
+          },
+          "required": [
+            "type",
+            "target_executable"
+          ]
+        }
+      ]
+    },
+    "RollbackPlan": {
+      "description": "Declarative rollback strategy and cleanup policy for reverting all recipe changes.",
+      "type": "object",
+      "properties": {
+        "backup_directory": {
+          "description": "Game-relative directory storing pre-patch file backups and the rollback transaction journal.",
+          "type": "string",
+          "default": ".ogsc_backup"
+        },
+        "custom_actions": {
+          "description": "Explicit ordered cleanup actions executed during rollback.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RollbackAction"
+          }
+        },
+        "extra_cleanup_paths": {
+          "description": "Additional relative file or empty-directory paths created by patches that may be cleaned up on rollback.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preserve_user_saves": {
+          "description": "Guarantee that user saves inside the sandbox are never deleted during rollback.",
+          "type": "boolean",
+          "default": true
+        },
+        "restore_registry_values": {
+          "description": "Whether registry `AppCompatFlags\\Layers` edits recorded by the transaction log should be reverted.",
+          "type": "boolean",
+          "default": true
+        },
+        "strategy": {
+          "description": "High-level strategy describing how rollback journal entries are replayed.",
+          "$ref": "#/$defs/RollbackStrategy"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "strategy"
+      ]
+    },
+    "RollbackStrategy": {
+      "description": "Strategy used by the rollback engine when reverting a recipe.",
+      "oneOf": [
+        {
+          "description": "Automatically reverse every file/registry transaction recorded during installation.",
+          "type": "string",
+          "const": "transactional_automatic"
+        },
+        {
+          "description": "Reverse recorded transactions and also execute `extra_cleanup_paths` / `custom_actions`.",
+          "type": "string",
+          "const": "automatic_with_extras"
+        },
+        {
+          "description": "Execute only the explicitly enumerated `custom_actions`.",
+          "type": "string",
+          "const": "explicit_only"
+        }
+      ]
+    },
+    "RuntimeRequirements": {
+      "description": "Target runtime environment and graphics API translation metadata.",
+      "type": "object",
+      "properties": {
+        "architecture": {
+          "description": "Primary executable architecture.",
+          "$ref": "#/$defs/BinaryArchitecture"
+        },
+        "native_graphics_api": {
+          "description": "Graphics APIs originally used by the unpatched binary (for example `Direct3D 9`).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requires_16bit_emulator": {
+          "description": "Whether the game must be launched via DOSBox-X or 86Box on 64-bit Windows.",
+          "type": "boolean"
+        },
+        "requires_admin": {
+          "description": "Whether the executable inherently requires elevated privileges (avoid whenever possible).",
+          "type": "boolean",
+          "default": false
+        },
+        "target_graphics_api": {
+          "description": "Modern graphics API targeted after wrapper deployment (for example `Direct3D 11`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "architecture",
+        "requires_16bit_emulator"
+      ]
+    },
+    "SandboxConfig": {
+      "description": "Per-game portable sandbox redirection configuration to avoid polluting user OS folders.",
+      "type": "object",
+      "properties": {
+        "enabled_by_default": {
+          "description": "Whether portable save/config isolation is active by default.",
+          "type": "boolean",
+          "default": true
+        },
+        "known_save_subpaths": {
+          "description": "Subpaths relative to `sandbox_root` or user documents where save files are stored.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "redirect_appdata_local": {
+          "description": "Redirect `LOCALAPPDATA` into the sandbox at launch.",
+          "type": "boolean",
+          "default": false
+        },
+        "redirect_appdata_roaming": {
+          "description": "Redirect `APPDATA` (Roaming) into the sandbox at launch.",
+          "type": "boolean",
+          "default": false
+        },
+        "redirect_documents": {
+          "description": "Redirect `USERPROFILE` / `My Documents` lookups into the sandbox when supported.",
+          "type": "boolean",
+          "default": false
+        },
+        "sandbox_root": {
+          "description": "Game-relative root folder hosting sandboxed saves and user profiles.",
+          "type": "string",
+          "default": ".ogsc_sandbox"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TargetArch": {
+      "description": "Binary architecture of the target wrapper DLLs.",
+      "oneOf": [
+        {
+          "description": "32-bit x86 (`MS/x86` in dgVoodoo 2).",
+          "type": "string",
+          "const": "x86"
+        },
+        {
+          "description": "64-bit x86_64 (`MS/x64` in dgVoodoo 2).",
+          "type": "string",
+          "const": "x64"
+        }
+      ]
+    },
+    "WineD3dRenderer": {
+      "description": "Graphics backend renderer selection for WineD3D.",
+      "oneOf": [
+        {
+          "description": "Translate Direct3D calls to OpenGL.",
+          "type": "string",
+          "const": "open_gl"
+        },
+        {
+          "description": "Translate Direct3D calls to Vulkan.",
+          "type": "string",
+          "const": "vulkan"
+        },
+        {
+          "description": "Software GDI fallback renderer.",
+          "type": "string",
+          "const": "gdi"
+        }
+      ]
+    },
+    "WrapperKind": {
+      "description": "Supported compatibility translation layers and 16-bit/DOS emulators in `runtime_wrappers`.",
+      "oneOf": [
+        {
+          "description": "dgVoodoo 2 (translates DirectDraw, Direct3D 1–8, and 3dfx Glide to Direct3D 11/12).",
+          "type": "object",
+          "properties": {
+            "api_targets": {
+              "description": "Legacy API proxy DLLs to deploy from the dgVoodoo 2 package.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DgVoodooApi"
+              }
+            },
+            "arch": {
+              "description": "Target executable architecture (`x86` for virtually all 1995–2012 Win32 titles).",
+              "$ref": "#/$defs/TargetArch"
+            },
+            "config_overrides": {
+              "description": "Overrides merged into `dgVoodoo.conf` as `Section -> Key -> Value`.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "dgvoodoo2"
+            }
+          },
+          "required": [
+            "kind",
+            "api_targets",
+            "arch"
+          ]
+        },
+        {
+          "description": "DxWrapper (DirectDraw/Direct3D/DirectInput compatibility wrapper and stub DLL injector).",
+          "type": "object",
+          "properties": {
+            "config_overrides": {
+              "description": "Overrides merged into `dxwrapper.ini` as `Section -> Key -> Value`.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "dxwrapper"
+            },
+            "stub_dlls": {
+              "description": "Proxy stub DLL filenames to copy (for example `ddraw.dll`, `d3d8.dll`, `winmm.dll`).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "stub_dlls"
+          ]
+        },
+        {
+          "description": "WineD3D for Windows (translates DirectDraw and Direct3D 1–11 to OpenGL or Vulkan).",
+          "type": "object",
+          "properties": {
+            "dlls": {
+              "description": "WineD3D DLL filenames to deploy (for example `ddraw.dll`, `d3d8.dll`, `wined3d.dll`).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "wined3d"
+            },
+            "renderer": {
+              "description": "Preferred WineD3D backend renderer.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/WineD3dRenderer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "dlls"
+          ]
+        },
+        {
+          "description": "XInput Plus (bridges modern XInput controllers to legacy DirectInput / WinMM joystick APIs).",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "xinput_plus"
+            },
+            "profile_ini": {
+              "description": "Controller mapping sections merged into `XInputPlus.ini`.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "target_dlls": {
+              "description": "Target DirectInput / XInput proxy DLLs generated or deployed (for example `dinput8.dll`).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "target_dlls"
+          ]
+        },
+        {
+          "description": "DOSBox-X runtime profile for DOS and 16-bit Windows 3.1/95/98 titles on 64-bit Windows.",
+          "type": "object",
+          "properties": {
+            "config_overrides": {
+              "description": "Configuration sections written into the per-game `dosbox-x.conf`.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "dosbox_x"
+            },
+            "machine": {
+              "description": "Emulated DOSBox-X machine type (for example `svga_s3` or `voodoo_banshee`).",
+              "type": "string"
+            },
+            "os_profile": {
+              "description": "Guest operating system profile expected inside DOSBox-X.",
+              "$ref": "#/$defs/LegacyOsProfile"
+            }
+          },
+          "required": [
+            "kind",
+            "machine",
+            "os_profile"
+          ]
+        },
+        {
+          "description": "86Box low-level PC hardware emulator profile for Win95/Win98 titles incompatible with Win64.",
+          "type": "object",
+          "properties": {
+            "config_overrides": {
+              "description": "Configuration sections written into the per-game `86box.cfg`.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "86box"
+            },
+            "machine_profile": {
+              "description": "Identifier of the 86Box machine hardware preset (motherboard + GPU + sound).",
+              "type": "string"
+            },
+            "os_profile": {
+              "description": "Guest operating system profile expected inside 86Box.",
+              "$ref": "#/$defs/LegacyOsProfile"
+            }
+          },
+          "required": [
+            "kind",
+            "machine_profile",
+            "os_profile"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+[package]
+name = "ogsc-wrappers"
+description = "Compatibility runtime wrapper catalog, config generation, and transactional deployment for Old Games - Second Chance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+ogsc-recipes.workspace = true
+ogsc-scanner.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

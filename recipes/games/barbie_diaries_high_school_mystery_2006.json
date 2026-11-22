@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "game_id": "barbie-diaries-high-school-mystery-2006",
+  "title": "The Barbie Diaries: High School Mystery",
+  "release_year": 2006,
+  "developer": "Stunt Puppy Entertainment",
+  "publisher": "Activision",
+  "metadata": {
+    "recipe_version": "1.0.3",
+    "authors": [
+      "Old Games - Second Chance Maintainers"
+    ],
+    "license": "MIT",
+    "updated_at": "2026-11-22",
+    "cover_art_url": "https://static.wikia.nocookie.net/barbie/images/f/f9/The_Barbie_Diaries_High_School_Mystery_US_PC_Cover_Front.png/revision/latest?cb=20161015002943",
+    "required_game_version": "Retail PC v1.0 (2006-09-21 Build) — optional 32-bit Flash Player 8-10 ActiveX for SWF v8 intro/minigames",
+    "notes": "Verified against the 2006 PC Retail/CD RenderWare Studio 2.0 release (`bin/game.exe` SHA-256 9da8b499...c0eb26). Fixes 0xc0000005 crashes in ConversationMgr::clearAll (RVA 0x00100806) and RwFreeListFree (RVA 0x000C1BA8), missing/outdated Flash ActiveX NULL dereferences, fullscreen D3D9 issues, shadow/light tuning, and broken shortcut working directory."
+  },
+  "baseline_health": "broken_on_win11",
+  "post_fix_health": "ready_to_play",
+  "releases": [
+    {
+      "release_id": "retail-cd-en-2006",
+      "label": "Retail PC Release (2006-09-21 Build)",
+      "distribution": "retail_cd",
+      "version": "1.0",
+      "region": "Global",
+      "executable_path": "bin/game.exe",
+      "fingerprint": {
+        "file_size_bytes": 7798784,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "3c15a01f490bdb403d1a206ccd1f1e8cfbe8c030e4407ed07236ca635e67ddff"
+        },
+        "sha256": "9da8b4992a98b4fdbefed8a88c5e14c48f43268b2f429641ae606d5d95c0eb26",
+        "md5": "2ba28f9f24057de9f2a06df7f8ef6b10",
+        "verification_status": "verified"
+      },
+      "sentinel_files": [
+        "Barbie/build.rez",
+        "Barbie/game/EeSettings.xml",
+        "Barbie/game/eesettings.override.xml"
+      ]
+    }
+  ],
+  "known_issues": [
+    {
+      "id": "atexit-conversation-mgr-crash",
+      "category": "crash_or_stability",
+      "severity": "blocker",
+      "summary": "Access violation (0xc0000005 @ RVA 0x00100806) in ConversationMgr::clearAll during teardown or failed boot",
+      "details": "CRT static initialization constructs g_ConversationMgr after WorldMgr, so atexit teardown destroys ConversationMgr (freeing its sentinel node at offset +0x10) before WorldMgr calls clearAll(), dereferencing NULL [ecx] (`mov eax, [ecx]`). The binary bsdiff patch guards ecx, esi, and edi against NULL before dereferencing.",
+      "fixed_by_fixes": [
+        "exe_crash_fixes"
+      ]
+    },
+    {
+      "id": "rw-freelist-null-crash",
+      "category": "crash_or_stability",
+      "severity": "blocker",
+      "summary": "Access violation (0xc0000005 @ RVA 0x000C1BA8) in RwFreeListFree when freeing a NULL freelist",
+      "details": "During scene cleanup or shutdown, callers occasionally pass a NULL RwFreeList* pointer into RwFreeListFree (`mov esi, [edi+10h]`). The bsdiff binary patch checks `edi != NULL` at entry (`RVA 0x000C1BA4`) and returns NULL cleanly instead of crashing.",
+      "fixed_by_fixes": [
+        "exe_crash_fixes"
+      ]
+    },
+    {
+      "id": "missing-flash-activex-win11",
+      "category": "crash_or_stability",
+      "severity": "blocker",
+      "summary": "Crash or blank intro/minigames when ShockwaveFlash ActiveX (Flash.ocx) is missing or older than v8",
+      "details": "CAxFlashWindow embeds CLSID {D27CDB6E-AE6D-11CF-96B8-444553540000} for BumperScreen.swf (SWF v8), OpeningCinematic.swf (SWF v8), LoadingScreen.swf (SWF v7), and minigames (SWF v6/v7). Without a modern x86 Flash ActiveX control, IShockwaveFlash* is NULL, causing NULL pointer dereferences in PutMovie (0x00608EEF), GetVariable (0x00609090), FlashDialog::LoadMovie (0x006113CB), and FlashDialog::Close (0x00611E5E).",
+      "fixed_by_fixes": [
+        "exe_crash_fixes",
+        "engine_and_flash_optimization"
+      ],
+      "user_action_required": "OpeningCinematic.swf and BumperScreen.swf use SWF v8 (On2 VP6 video) and minigames use SWF v7. If Flash Player 6.0 (or no Flash ActiveX) is installed, movies and minigames remain blank: install 32-bit x86 Flash Player 8, 9, or 10 ActiveX (or EOL-free CleanFlash ActiveX x86) for intro playback, or rely on the enabled Flash bypasses."
+    },
+    {
+      "id": "fullscreen-d3d9-blackscreen",
+      "category": "graphics_api",
+      "severity": "major",
+      "summary": "Black screen, D3D9 mode-switch crashes, and 20 Hz shadow stutter on modern monitors",
+      "details": "Legacy exclusive D3D9 fullscreen fails mode switches or hangs during dialogs on modern Windows 10/11 displays, while MaxShadowUpdateFrequency=20 and zero-intensity lights add unnecessary CPU/GPU overhead. Enforcing windowed rendering (1024x768) via eesettings overrides, 60 Hz shadows, HKCU AppCompat shims, and 2-core affinity stabilizes frame pacing.",
+      "fixed_by_fixes": [
+        "engine_and_flash_optimization",
+        "win11_compat_and_affinity",
+        "dgvoodoo2_d3d9_wrapper"
+      ]
+    },
+    {
+      "id": "missing-title-cli-arg",
+      "category": "crash_or_stability",
+      "severity": "major",
+      "summary": "Launching game.exe directly defaults `-title` to `RatRace` instead of `Barbie` and fails without `-title Barbie`",
+      "details": "Without `-title Barbie -EnableFullScreen false -xsize 1024 -ysize 768` executed from `bin/`, the RenderWare Studio engine attempts to load `bin/RatRace` assets instead of `../Barbie` and fails during startup. OGSC passes the exact required working directory and arguments at launch.",
+      "fixed_by_fixes": [
+        "win11_compat_and_affinity"
+      ]
+    }
+  ],
+  "runtime_requirements": {
+    "architecture": "win32",
+    "requires_16bit_emulator": false,
+    "native_graphics_api": [
+      "Direct3D 9"
+    ],
+    "target_graphics_api": "Direct3D 9 (Windowed) / Direct3D 11 (dgVoodoo 2)",
+    "requires_admin": false
+  },
+  "sandbox": {
+    "enabled_by_default": false,
+    "sandbox_root": "Barbie/saves",
+    "redirect_documents": false,
+    "redirect_appdata_local": false,
+    "redirect_appdata_roaming": false,
+    "known_save_subpaths": [
+      "Barbie/saves"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "exe_crash_fixes",
+      "title": "Binary Crash Guards (0xc0000005 & Missing Flash COM Guards)",
+      "description": "Applies a SHA-256-verified bsdiff patch to `bin/game.exe` adding six surgical x86 NULL-pointer guards: `ConversationMgr::clearAll` (RVA 0x00100806), `RwFreeListFree` (RVA 0x000C1BA8), `IShockwaveFlash::PutMovie` (RVA 0x00208EEF), `IShockwaveFlash::GetVariable` (RVA 0x00209090), `FlashDialog::Close` (RVA 0x00211E5E), and `FlashDialog::LoadMovie` (RVA 0x002113CB).",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "patch-barbie-game-exe",
+          "name": "Patch bin/game.exe NULL-Pointer Crash Guards",
+          "description": "Verifies vanilla `bin/game.exe` hash and applies verified bsdiff patch adding six NULL guards (reversible via `.ogsc_backup`).",
+          "action": {
+            "type": "apply_binary_bsdiff_patch",
+            "target_file": "bin/game.exe",
+            "patch_source": {
+              "kind": "local_manifest_relative",
+              "path": "patches/barbie_diaries_2006/game_exe_crash_fixes.bsdiff",
+              "sha256": "bc62c9f9b8e62f063ef7b909817ff6f9abc0db0740f35bd10a6999a9c5507122"
+            },
+            "expected_original_sha256": "9da8b4992a98b4fdbefed8a88c5e14c48f43268b2f429641ae606d5d95c0eb26",
+            "expected_patched_sha256": "9c19e0853c44bcc8c894e947e57dfe4e9ef889601bd069fb77042c4bf8c08b98",
+            "verification_status": "verified",
+            "backup_original": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "engine_and_flash_optimization",
+      "title": "Engine Performance & Flash Bypass (`eesettings.override.xml`)",
+      "description": "Updates `Barbie/game/eesettings.override.xml` via verified bsdiff to enforce crash-free windowed mode, skip Flash bumper screens (`ToSkipFlashBumperScreen`), allow skipping minigames cleanly (`ToEnableFlashGameSkipping`), raise shadow updates from 20 Hz to 60 Hz (`MaxShadowUpdateFrequency=60`), prune zero-intensity lights, and silence script assertion popups.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "patch-eesettings-override",
+          "name": "Optimize Engine & Flash Overrides XML",
+          "description": "Applies SHA-256-verified bsdiff overrides cleanly to `Barbie/game/eesettings.override.xml` without touching base `EeSettings.xml`.",
+          "action": {
+            "type": "apply_binary_bsdiff_patch",
+            "target_file": "Barbie/game/eesettings.override.xml",
+            "patch_source": {
+              "kind": "local_manifest_relative",
+              "path": "patches/barbie_diaries_2006/eesettings_override_optimize.bsdiff",
+              "sha256": "6ef600df8a1ad190b489c35b2bc4a2488b8c85746c772a0ec4ae9ce17f9aa593"
+            },
+            "expected_original_sha256": "ecf91acfdfea53b6fb717630d1a70a2574c47701bb37abaef1c977ebc9b784f2",
+            "expected_patched_sha256": "02d0caecdc08cc45082d8966b5c62817a7d98e524488215000ba281ab1c53e8f",
+            "verification_status": "verified",
+            "backup_original": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "win11_compat_and_affinity",
+      "title": "Windows 10/11 Compatibility Shims & 2-Core Affinity",
+      "description": "Applies non-destructive HKCU AppCompatFlags (`HIGHDPIAWARE`, `DISABLEDXMAXIMIZEDWINDOWEDMODE`) to `bin/game.exe` and constrains CPU affinity to 2 logical cores at AboveNormal priority on launch with the required `-title Barbie` arguments.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "barbie-hkcu-compat-flags",
+          "name": "Apply High-DPI & Presentation Compatibility Flags",
+          "description": "Sets per-user HKCU AppCompatFlags on `bin/game.exe` to prevent DWM fullscreen presentation freezes and DPI blur without triggering Windows XP UAC elevation.",
+          "action": {
+            "type": "set_registry_compat_flags",
+            "hive": "hkcu",
+            "target_executable": "bin/game.exe",
+            "flags": [
+              {
+                "flag": "high_dpi_aware"
+              },
+              {
+                "flag": "disable_fullscreen_optimizations"
+              }
+            ],
+            "merge_with_existing": true
+          }
+        },
+        {
+          "id": "barbie-cpu-affinity",
+          "name": "Limit CPU Affinity to 2 Logical Cores",
+          "description": "Pins `bin/game.exe` to 2 cores with AboveNormal scheduling priority on launch to keep RenderWare timing smooth on high-core CPUs.",
+          "action": {
+            "type": "limit_cpu_affinity",
+            "mode": {
+              "policy": "max_logical_cores",
+              "count": 2
+            },
+            "apply_method": "launcher_process_mask",
+            "process_priority": "above_normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dgvoodoo2_d3d9_wrapper",
+      "title": "dgVoodoo 2 Direct3D 9 -> Direct3D 11 Wrapper (Optional)",
+      "description": "Deploys dgVoodoo 2 x86 `d3d9.dll` + `dgVoodoo.conf` into `bin/` with clean aspect-preserved scaling and 16x anisotropic filtering. Enable if your GPU driver flickers or drops textures.",
+      "recommended": false,
+      "steps": [
+        {
+          "id": "deploy-barbie-dgvoodoo2",
+          "name": "Deploy dgVoodoo 2 D3D9 Wrapper into bin/",
+          "description": "Translates legacy Direct3D 9 calls cleanly to Direct3D 11 for modern Intel/AMD/NVIDIA drivers.",
+          "action": {
+            "type": "deploy_wrapper",
+            "wrapper": {
+              "kind": "dgvoodoo2",
+              "api_targets": [
+                "d3d9"
+              ],
+              "arch": "x86",
+              "config_overrides": {
+                "General": {
+                  "FullScreenMode": "false",
+                  "ScalingMode": "stretched_ar"
+                },
+                "DirectX": {
+                  "DisableAndPassThru": "false",
+                  "FastVideoMemoryAccess": "true",
+                  "Filtering": "16",
+                  "dgVoodooWatermark": "false"
+                }
+              }
+            },
+            "target_dir": "bin"
+          }
+        }
+      ]
+    }
+  ],
+  "launch": {
+    "default_executable": "bin/game.exe",
+    "working_directory": "bin",
+    "arguments": [
+      "-title",
+      "Barbie",
+      "-EnableFullScreen",
+      "false",
+      "-xsize",
+      "1024",
+      "-ysize",
+      "768"
+    ]
+  },
+  "rollback": {
+    "strategy": "transactional_automatic",
+    "backup_directory": ".ogsc_backup",
+    "preserve_user_saves": true,
+    "restore_registry_values": true
+  }
+}

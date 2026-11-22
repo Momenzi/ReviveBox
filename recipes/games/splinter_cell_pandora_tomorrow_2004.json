@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "game_id": "splinter-cell-pandora-tomorrow-2004",
+  "title": "Tom Clancy's Splinter Cell: Pandora Tomorrow",
+  "release_year": 2004,
+  "developer": "Ubisoft Shanghai",
+  "publisher": "Ubisoft",
+  "metadata": {
+    "recipe_version": "1.0.2",
+    "authors": [
+      "Old Games - Second Chance Maintainers"
+    ],
+    "license": "MIT",
+    "updated_at": "2026-11-22",
+    "pcgamingwiki_url": "https://www.pcgamingwiki.com/wiki/Tom_Clancy%27s_Splinter_Cell:_Pandora_Tomorrow",
+    "steamgriddb_id": 4700,
+    "cover_art_url": "https://upload.wikimedia.org/wikipedia/en/5/5e/Pandora_Tomorrow_box_art.jpg",
+    "required_game_version": "Retail PC patched to v1.31 (+ dgVoodoo 2 Direct3D 8 wrapper for shadow buffers)",
+    "notes": "Exercises DirectX 8 -> Direct3D 11 wrapper deployment via dgVoodoo 2, cached archive DLL extraction, and Windows-1252 Unreal Engine 2 INI updates. Template hashes await Milestone 2 binary verification."
+  },
+  "baseline_health": "needs_wrapper",
+  "post_fix_health": "ready_to_play",
+  "releases": [
+    {
+      "release_id": "retail-dvd-v1.31",
+      "label": "Retail Disc Release (Patched to v1.31)",
+      "distribution": "retail_dvd",
+      "version": "1.31",
+      "region": "Global",
+      "executable_path": "offline/system/SplinterCell2.exe",
+      "fingerprint": {
+        "file_size_bytes": 163840,
+        "partial_sha256": {
+          "offset": 0,
+          "length": 65536,
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000301"
+        },
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000003",
+        "verification_status": "unverified_template"
+      },
+      "sentinel_files": [
+        "offline/system/Engine.dll",
+        "offline/system/D3DDrv.dll"
+      ]
+    }
+  ],
+  "known_issues": [
+    {
+      "id": "dx8-missing-shadows",
+      "category": "graphics_api",
+      "severity": "blocker",
+      "summary": "Shadow buffers and spotlight cones fail to render on modern GPUs",
+      "details": "Pandora Tomorrow relies on legacy Direct3D 8 shadow buffer projection paths deprecated since GeForce 8000 / Radeon HD 2000 drivers, rendering critical stealth light/shadow gameplay broken without dgVoodoo 2.",
+      "fixed_by_fixes": [
+        "dgvoodoo2_wrapper"
+      ]
+    },
+    {
+      "id": "widescreen-aspect-fov",
+      "category": "widescreen_and_hud",
+      "severity": "major",
+      "summary": "Missing 16:9 widescreen resolutions and stretched menus",
+      "details": "ThirteenAG's Widescreen Fix ASI plugin enables native desktop resolution, proper FOV scaling, and non-stretched HUD menus.",
+      "fixed_by_fixes": [
+        "widescreen_fix"
+      ]
+    },
+    {
+      "id": "rdtsc-timing-affinity",
+      "category": "cpu_affinity_and_timing",
+      "severity": "minor",
+      "summary": "Physics and animation jitter on multi-core processors",
+      "details": "Constraining Unreal Engine 2 to single-core execution prevents timer desynchronization across CPU cores.",
+      "fixed_by_fixes": [
+        "win11_stability_tuning"
+      ]
+    }
+  ],
+  "runtime_requirements": {
+    "architecture": "win32",
+    "requires_16bit_emulator": false,
+    "native_graphics_api": [
+      "Direct3D 8"
+    ],
+    "target_graphics_api": "Direct3D 11",
+    "requires_admin": false
+  },
+  "sandbox": {
+    "enabled_by_default": true,
+    "sandbox_root": ".ogsc_sandbox",
+    "redirect_documents": false,
+    "redirect_appdata_local": false,
+    "redirect_appdata_roaming": false,
+    "known_save_subpaths": [
+      "offline/Save"
+    ]
+  },
+  "fixes": [
+    {
+      "id": "dgvoodoo2_wrapper",
+      "title": "dgVoodoo 2 Direct3D 8 Shadow Buffer Fix",
+      "description": "Places dgVoodoo 2 x86 `D3D8.dll` and `dgVoodoo.conf` into `offline/system` to emulate legacy shadow buffers cleanly on Direct3D 11.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "deploy-dgvoodoo2-dx8",
+          "name": "Deploy dgVoodoo 2 Direct3D 8 Shadow Buffer Wrapper",
+          "description": "Places dgVoodoo 2 x86 `D3D8.dll` into `offline/system` and configures emulated GeForce4 / ATI Radeon shadow buffer rendering over Direct3D 11.",
+          "action": {
+            "type": "deploy_wrapper",
+            "wrapper": {
+              "kind": "dgvoodoo2",
+              "api_targets": [
+                "d3d8"
+              ],
+              "arch": "x86",
+              "config_overrides": {
+                "DirectX": {
+                  "ForceVerticalSync": "true",
+                  "VRAM": "256",
+                  "Videocard": "geforce4_ti_4800",
+                  "dgVoodooWatermark": "false"
+                }
+              }
+            },
+            "min_toolkit_version": "2.82.3",
+            "target_dir": "offline/system"
+          }
+        }
+      ]
+    },
+    {
+      "id": "widescreen_fix",
+      "title": "ThirteenAG Widescreen Fix + UE2 Resolution INI",
+      "description": "Downloads ThirteenAG's widescreen ASI loader (`msacm32.dll` + `SplinterCellPandoraTomorrow.WidescreenFix.asi`) into `offline/system` and updates `SplinterCell2.ini` to your desktop resolution.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "download-widescreen-fix",
+          "name": "Download ThirteenAG Pandora Tomorrow Widescreen Fix",
+          "description": "Downloads and SHA-256 verifies the community MIT widescreen plugin bundle.",
+          "action": {
+            "type": "download_verified_zip",
+            "url": "https://github.com/ThirteenAG/WidescreenFixesPack/releases/download/scpt/SplinterCellPandoraTomorrow.WidescreenFix.zip",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000401",
+            "verification_status": "unverified_template",
+            "archive_format": "zip",
+            "extract_to": "offline/system",
+            "include_patterns": [
+              "msacm32.dll",
+              "scripts/SplinterCellPandoraTomorrow.WidescreenFix.ini"
+            ],
+            "strip_components": 0,
+            "overwrite_existing": true,
+            "license": "MIT",
+            "source_repo": "https://github.com/ThirteenAG/WidescreenFixesPack"
+          }
+        },
+        {
+          "id": "extract-widescreen-asi",
+          "name": "Extract Widescreen Fix ASI Plugin",
+          "description": "Extracts `SplinterCellPandoraTomorrow.WidescreenFix.asi` from the cached download into `offline/system/scripts`.",
+          "action": {
+            "type": "extract_dll",
+            "source": {
+              "kind": "cached_archive",
+              "download_step_id": "download-widescreen-fix",
+              "archive_member": "scripts/SplinterCellPandoraTomorrow.WidescreenFix.asi"
+            },
+            "destination_path": "offline/system/scripts/SplinterCellPandoraTomorrow.WidescreenFix.asi",
+            "expected_sha256": "0000000000000000000000000000000000000000000000000000000000000402",
+            "verification_status": "unverified_template",
+            "backup_original": true
+          }
+        },
+        {
+          "id": "configure-ue2-ini",
+          "name": "Configure Widescreen & Unreal Engine 2 Display Settings",
+          "description": "Updates `SplinterCell2.ini` using Windows-1252 + CRLF encoding to set native desktop resolution.",
+          "action": {
+            "type": "write_ini_config",
+            "target_file": "offline/system/SplinterCell2.ini",
+            "create_if_missing": false,
+            "encoding": "windows1252",
+            "line_ending": "crlf",
+            "sections": {
+              "WinDrv.WindowsClient": {
+                "FullscreenViewportX": {
+                  "dynamic": "desktop_width"
+                },
+                "FullscreenViewportY": {
+                  "dynamic": "desktop_height"
+                },
+                "StartupFullscreen": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "win11_stability_tuning",
+      "title": "Windows XP SP3 Compatibility Flags & Single-Core Affinity",
+      "description": "Writes per-user HKCU AppCompatFlags (`WINXPSP3 HIGHDPIAWARE DISABLEDXMAXIMIZEDWINDOWEDMODE`) for `SplinterCell2.exe` and constrains launch affinity to core 0.",
+      "recommended": true,
+      "steps": [
+        {
+          "id": "apply-compat-flags",
+          "name": "Apply Windows XP SP3 & High-DPI Compatibility Flags",
+          "description": "Sets per-user HKCU AppCompat flags for reliable Unreal Engine 2 window initialization.",
+          "action": {
+            "type": "set_registry_compat_flags",
+            "hive": "hkcu",
+            "target_executable": "offline/system/SplinterCell2.exe",
+            "flags": [
+              {
+                "flag": "win_xp_sp3"
+              },
+              {
+                "flag": "high_dpi_aware"
+              },
+              {
+                "flag": "disable_fullscreen_optimizations"
+              }
+            ],
+            "merge_with_existing": true
+          }
+        },
+        {
+          "id": "limit-cpu-affinity",
+          "name": "Restrict Process to Single Logical Core",
+          "description": "Prevents timing drift on modern multi-core CPUs during stealth physics and animations.",
+          "action": {
+            "type": "limit_cpu_affinity",
+            "mode": {
+              "policy": "single_core"
+            },
+            "apply_method": "launcher_process_mask",
+            "process_priority": "normal"
+          }
+        }
+      ]
+    }
+  ],
+  "launch": {
+    "default_executable": "offline/system/SplinterCell2.exe",
+    "working_directory": "offline/system"
+  },
+  "rollback": {
+    "strategy": "transactional_automatic",
+    "backup_directory": ".ogsc_backup",
+    "preserve_user_saves": true,
+    "restore_registry_values": true,
+    "extra_cleanup_paths": [
+      "offline/system/D3D8.dll",
+      "offline/system/dgVoodoo.conf",
+      "offline/system/msacm32.dll"
+    ]
+  }
+}
