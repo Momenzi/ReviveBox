@@ -6,6 +6,10 @@
 
 An open-source, ultra-fast Windows desktop launcher and declarative compatibility engine designed to run legacy PC games (1995–2012) smoothly on Windows 10 and Windows 11 with one click.
 
+<p align="center">
+  <img src="docs/assets/revivebox_screenshot.jpg" alt="ReviveBox — Old Games Second Chance Desktop Launcher" width="900" />
+</p>
+
 ## Core Philosophy
 
 - **Bring Your Own Game (BYOG):** Zero copyrighted game binaries, zero piracy cracks, and zero bypasses. Users point **ReviveBox** at legally owned local game installations (Retail CD/DVD, Steam, GOG, EA App, Ubisoft Connect, etc.). Executable fingerprinting identifies the exact release and applies verified open-source wrappers, community fixes, configuration tweaks, and Windows compatibility flags.
